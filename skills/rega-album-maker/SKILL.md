@@ -5,7 +5,7 @@ license: MIT (see LICENSE). Bundled fonts under the SIL Open Font License; detai
 compatibility: Runs scripts locally. Needs Python 3.9+ with the packages in requirements.txt and Chrome, Edge or Chromium for the PDF. Optional OpenCV (faces) and ffmpeg (video clips). Network only for optional place names (OpenStreetMap) and a version check (GitHub). Made for Claude Code and Cowork; any agent that runs skill scripts can use it.
 metadata:
   author: Tamir Gur
-  version: "1.0.1"
+  version: "1.0.2"
   repository: https://github.com/tamirgur/rega-album-maker
 ---
 
@@ -66,6 +66,10 @@ In Hebrew the first line reads `שלב 3 מתוך 10 · הסיפור`, and the l
 plain words: no file names, no jargon, no script output. Where AskUserQuestion exists, use it for choices, with the
 recommended option first. While a script runs for more than a few seconds, say so in one line ("Scanning 2,400
 photos, a few minutes").
+
+**The user sees only what is opened for them or linked.** An image you Read is for your eyes only. Whatever the user
+must look at (the samples, the preview, the book) gets opened on their screen or a link they can click, before you
+ask about it.
 
 **The first message** sets expectations, in the user's language, in about nine lines:
 
@@ -213,16 +217,23 @@ money, so the user chooses. Write `format` and `book`, then run `group.py` again
 
 ### 5. Design
 
-Four short choices, each shown on the user's own photos, never described in the abstract. `sample.py` builds them
-from a few strong photos of the scan. Look at a contact sheet first and pass a good cover and 6 photos with
-`--cover ID --photos ID,...`. Read each PNG it prints, check it, then show it. The chapter titles on samples are
+Four short choices, each shown on the user's own photos, never described in the abstract: the user picks a look by
+seeing it. `sample.py` builds them from a few strong photos of the scan (look at a contact sheet first and pass a
+good cover and 6 photos with `--cover ID --photos ID,...`) and puts each set in **one image** of small samples,
+numbered and named. It opens that image on the user's screen by itself ("Opened on the user's screen"); also give
+its link, and Read it yourself to check it. Where it can't open it (Cowork), it prints the link to give. Ask for the
+choice only after that, by the numbers in the image ("Which numbers do you like?"). The chapter titles on samples are
 placeholders: say so.
+
+If the user says "you decide", skip the samples: choose what suits the photos and the kind of book, and say in one
+line what you chose.
 
 1. **Structure:** album, journal or magazine (`references/design.md`). Recommend by the kind of book. A magazine
    needs a style whose photos run to the edge (Minimal, Colourful, Bold, Newspaper, Swiss); with another style offer
    album or journal only. Show them only if the user hesitates: `sample.py --work "<work>" --style <style> --structures`.
-2. **Style:** `sample.py --work "<work>" --gallery` shows the cover in all 15 styles (about 2 minutes: say so). Let
-   them pick two or three, then `sample.py --work "<work>" --styles a,b,c` shows a cover and a spread in each. They
+2. **Style:** say why in one line ("Making your cover in all 15 styles, so you can pick by seeing them on your
+   photos: a minute or two"), then `sample.py --work "<work>" --gallery`: one image of the 15 covers. Let them pick
+   two or three numbers, then `sample.py --work "<work>" --styles a,b,c` shows a cover and a spread in each. They
    choose one.
 3. **Palette:** the style's own, or another: `sample.py --work "<work>" --style <style> --palettes a,b,c`. Offer the
    palettes listed in the style's file, "from the photos" among them. A brand gives its accent colour and a logo.

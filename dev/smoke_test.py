@@ -29,7 +29,8 @@ failures = []
 
 def run(script, *args, expect=0):
     r = subprocess.run([sys.executable, os.path.join(SCRIPTS, script), *args], capture_output=True, text=True,
-                       encoding='utf-8', errors='replace', env=dict(os.environ, PYTHONIOENCODING='utf-8'))
+                       encoding='utf-8', errors='replace',
+                       env=dict(os.environ, PYTHONIOENCODING='utf-8', REGA_NO_OPEN='1'))   # no windows during tests
     if r.returncode != expect:
         failures.append(f'{script} {" ".join(args[:3])}: exit {r.returncode}\n{r.stdout[-1500:]}\n{r.stderr[-1500:]}')
     return r.stdout + r.stderr

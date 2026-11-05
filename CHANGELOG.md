@@ -3,6 +3,19 @@
 All notable changes to Rega – AI Album Maker. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.0.2] - 2026-11-05
+
+### Fixed
+- **The style samples reach the user.** The 15 covers were made but only Claude looked at them, so the user chose a
+  style by name. Every sample image now opens on the user's screen by itself (in Cowork, a link is given), and
+  Claude asks for the choice only after, by the numbers in the image.
+
+### Changed
+- The samples are made from the scan's thumbnails, several at once: faster, and no original photo is downloaded
+  from the cloud just for a sample.
+- One line says why the samples are made, and "you decide" skips them.
+- A general rule in the skill: the user sees only what is opened for them or linked, never what Claude reads.
+
 ## [1.0.1] - 2026-11-05
 
 From a real trip book (a visit to Florence), where the second version came out much better than the first.

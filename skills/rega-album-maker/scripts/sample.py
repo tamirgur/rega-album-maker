@@ -8,8 +8,11 @@
     ... [--cover ID] [--photos ID,ID,...]                            # your own pick for the cover and the spread
 
 It picks a cover and a few strong photos from the scan by itself (the user's real selection comes later), builds a
-small book in each look with the real layout and renderer, and puts the results side by side in
-WORK/samples/<name>.png (and .pdf). Open the PNG (Read it) and show it to the user.
+small book in each look with the real layout and renderer, from the scan's thumbnails (fast, and no cloud photo is
+downloaded for a sample), and puts the results side by side in one image, WORK/samples/<name>.png (and .pdf).
+
+The image opens on the user's screen by itself (--no-open, or REGA_NO_OPEN=1, to skip): Claude reading an image does
+not show it to the user. Read it too, to check it.
 """
 import argparse
 import os
@@ -79,14 +82,31 @@ def provisional(work, brief, cover=None, photos=None):
             'chapters': chapters}
 
 
+def build_many(work, brief, sel, jobs):
+    """Several looks at once, a few browsers side by side (each look in its own folder): [(imgs, rtl)] in order."""
+    from concurrent.futures import ThreadPoolExecutor
+    n = max(1, min(4, (os.cpu_count() or 2) // 2, len(jobs)))
+    with ThreadPoolExecutor(max_workers=n) as ex:
+        futs = [ex.submit(build, work, brief, sel, *j) for j in jobs]
+        return [f.result() for f in futs]
+
+
 def build(work, brief, sel, style, palette, structure, tag):
     """One small book in one look; returns the page images (cover, first spread) as files."""
-    sw = os.path.join(work, 'samples', '_work')
+    sw = os.path.join(work, 'samples', '_work', tag)
     os.makedirs(sw, exist_ok=True)
     for f in ('scan.json', 'groups.json'):
-        src = os.path.join(work, f)
-        if not os.path.isfile(os.path.join(sw, f)) or os.path.getmtime(os.path.join(sw, f)) < os.path.getmtime(src):
-            shutil.copyfile(src, os.path.join(sw, f))
+        src, dst = os.path.join(work, f), os.path.join(sw, f)
+        if os.path.isfile(dst) and os.path.getmtime(dst) >= os.path.getmtime(src):
+            continue
+        if f == 'scan.json':   # the samples are small: draw them from the thumbnails, never the originals
+            scan = load(src)
+            for r in scan['items']:
+                if r.get('kind') == 'photo' and r.get('thumb') and os.path.isfile(r['thumb']):
+                    r['path'] = r['thumb']
+            save(dst, scan)
+        else:
+            shutil.copyfile(src, dst)
     b = {k: v for k, v in brief.items() if k in ('book', 'print')}
     fmt = dict(brief.get('format') or {})
     fmt['pages'] = 6
@@ -161,9 +181,37 @@ h1{{font:300 15pt Assistant;margin-bottom:5mm}}
     for i in ims:
         out.paste(i, (0, y))
         y += i.height
+    from PIL import ImageChops
+    box = ImageChops.difference(out, Image.new('RGB', out.size, (60, 60, 60))).getbbox()
+    if box:   # no empty band under the last row
+        out = out.crop((0, 0, out.width, min(out.height, box[3] + 40)))
     out.save(png)
     print(png)
+    if SHOW:
+        print('Opened on the user\'s screen.' if show(png) else
+              f'Could not open it here: give the user this link to open it: {Path(png).as_uri()}')
     return png
+
+
+SHOW = True
+
+
+def show(path):
+    """Open the image in the computer's own viewer, so the user sees it. False where there is no screen."""
+    if os.environ.get('REGA_NO_OPEN', '').strip() not in ('', '0'):
+        return False
+    try:
+        if sys.platform == 'win32':
+            os.startfile(path)   # noqa: S606 - the user's own image viewer
+        elif sys.platform == 'darwin':
+            subprocess.Popen(['open', path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        elif os.environ.get('DISPLAY') or os.environ.get('WAYLAND_DISPLAY'):
+            subprocess.Popen(['xdg-open', path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            return False   # a sandbox with no screen (Cowork): the link is the way
+        return True
+    except (OSError, AttributeError):
+        return False
 
 
 def main():
@@ -176,7 +224,10 @@ def main():
     ap.add_argument('--structures', action='store_true')
     ap.add_argument('--cover', type=int, help='the photo for the sample cover (an id from the sheets)')
     ap.add_argument('--photos', help='ids for the sample chapters, in order')
+    ap.add_argument('--no-open', action='store_true', help='do not open the image on the screen')
     a = ap.parse_args()
+    global SHOW
+    SHOW = not a.no_open
     work = os.path.abspath(a.work)
     brief = load(os.path.join(work, 'brief.json')) if os.path.isfile(os.path.join(work, 'brief.json')) else {}
     des = brief.get('design') or {}
@@ -185,28 +236,33 @@ def main():
     structure = des.get('structure') or 'album'
     rows = []
     if a.gallery:
-        for s in style_names():
+        names = style_names()
+        built = build_many(work, brief, sel, [(s, 'style', structure, s) for s in names])
+        for s, (imgs, rtl) in zip(names, built):
             st = load_style(s)
-            imgs, rtl = build(work, brief, sel, s, 'style', structure, s)
             rows.append((f'{st["n"]}. {st["he"] if he else st["en"]}', st['describe_he'] if he else st['describe'], imgs, rtl))
         sheet(work, 'gallery', rows, 'הסגנונות על התמונות שלך' if he else 'The styles, on your photos', covers_only=True,
               lang=sel['lang'])
     elif a.styles:
-        for s in a.styles.split(','):
+        names = a.styles.split(',')
+        built = build_many(work, brief, sel, [(s, des.get('palette') if des.get('style') == s else 'style', structure, s)
+                                              for s in names])
+        for s, (imgs, rtl) in zip(names, built):
             st = load_style(s)
-            imgs, rtl = build(work, brief, sel, s, des.get('palette') if des.get('style') == s else 'style', structure, s)
             rows.append((st['he'] if he else st['en'], st['describe_he'] if he else st['describe'], imgs, rtl))
         sheet(work, 'styles', rows, 'שער וכפולה בכל סגנון' if he else 'A cover and a spread in each style', lang=sel['lang'])
     elif a.style and a.palettes:
         pals = palettes()
-        for p in a.palettes.split(','):
-            imgs, rtl = build(work, brief, sel, a.style, p, structure, f'{a.style}-{p}')
+        names = a.palettes.split(',')
+        built = build_many(work, brief, sel, [(a.style, p, structure, f'{a.style}-{p}') for p in names])
+        for p, (imgs, rtl) in zip(names, built):
             rows.append((pals[p]['he'] if he else pals[p]['en'], '', imgs, rtl))
         sheet(work, 'palettes', rows, 'אותו סגנון בפלטות שונות' if he else 'One style, several palettes', lang=sel['lang'])
     elif a.style and a.structures:
         sts = structures()
-        for k in load_style(a.style).get('structures', ['album', 'journal', 'magazine']):
-            imgs, rtl = build(work, brief, sel, a.style, des.get('palette') or 'style', k, f'{a.style}-{k}')
+        names = load_style(a.style).get('structures', ['album', 'journal', 'magazine'])
+        built = build_many(work, brief, sel, [(a.style, des.get('palette') or 'style', k, f'{a.style}-{k}') for k in names])
+        for k, (imgs, rtl) in zip(names, built):
             rows.append((sts[k]['he'] if he else sts[k]['en'], sts[k]['describe_he'] if he else sts[k]['describe'], imgs, rtl))
         sheet(work, 'structures', rows, 'אותו פרק בשלושה מבנים' if he else 'One chapter in three structures', lang=sel['lang'])
     else:
