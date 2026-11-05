@@ -1,0 +1,97 @@
+{
+ "name": "swiss",
+ "he": "שוויצרי",
+ "en": "Swiss",
+ "n": 12,
+ "describe": "A strict grid, a bar in a colour from the photos, a small bold title.",
+ "describe_he": "גריד קפדני, פס בצבע מתוך התמונות, כותרת שמנה קטנה.",
+ "palette": "photos",
+ "base_palette": "neutral",
+ "palettes": [
+  "photos",
+  "neutral",
+  "mist"
+ ],
+ "fonts": {
+  "display": {
+   "family": "Heebo",
+   "file": "Heebo-ExtraBold.ttf",
+   "weights": "800"
+  },
+  "text": {
+   "family": "Heebo",
+   "file": "Heebo-Regular.ttf",
+   "weights": "400"
+  }
+ },
+ "display_classes": [
+  "hero",
+  "h1",
+  "h2"
+ ],
+ "text_classes": [
+  "label",
+  "deck",
+  "folio",
+  "story"
+ ],
+ "type": {
+  "hero": [
+   800,
+   40
+  ],
+  "h1": [
+   800,
+   24
+  ],
+  "h2": [
+   800,
+   24
+  ],
+  "deck": [
+   400,
+   10
+  ],
+  "story": [
+   400,
+   11
+  ],
+  "label": [
+   400,
+   9.5
+  ],
+  "folio": [
+   400,
+   9
+  ]
+ },
+ "label_color": "accent",
+ "margin": {
+  "outer": 14,
+  "spine": 18,
+  "top": 14
+ },
+ "gap": 4,
+ "grade": {
+  "neutralize": 0.4,
+  "contrast": 1.04,
+  "saturation": 1.0,
+  "warmth": 0.01
+ },
+ "frame": "none",
+ "edge": true,
+ "edge_share": 0.3,
+ "opener_spreads": false,
+ "quiet_scale": 0.8,
+ "cover": "swiss",
+ "title_deco": "bar",
+ "ornaments": [],
+ "illustrations": false,
+ "deck": "dots",
+ "running_heads": false,
+ "structures": [
+  "album",
+  "journal",
+  "magazine"
+ ]
+}

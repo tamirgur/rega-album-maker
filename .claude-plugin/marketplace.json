@@ -1,0 +1,15 @@
+{
+  "name": "tamirgur",
+  "description": "Rega – AI Album Maker Skill for Claude",
+  "owner": {
+    "name": "Tamir Gur",
+    "url": "https://github.com/tamirgur"
+  },
+  "plugins": [
+    {
+      "name": "rega-album-maker",
+      "source": "./",
+      "description": "Rega – AI Album Maker Skill, by Tamir Gur: a print-ready photo book from a folder of photos, in 15 styles, in English, Hebrew or another language."
+    }
+  ]
+}

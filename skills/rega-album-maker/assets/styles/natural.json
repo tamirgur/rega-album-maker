@@ -1,0 +1,98 @@
+{
+ "name": "natural",
+ "he": "טבעי",
+ "en": "Natural",
+ "n": 8,
+ "describe": "Kraft paper, a thin olive line around the photos, a botanical drawing.",
+ "describe_he": "נייר קראפט, קו זית דק סביב התמונות וציור בוטני.",
+ "palette": "sage",
+ "palettes": [
+  "sage",
+  "sand",
+  "earth"
+ ],
+ "texture": "kraft",
+ "fonts": {
+  "display": {
+   "family": "David Libre",
+   "file": "DavidLibre-Medium.ttf",
+   "weights": "500"
+  },
+  "text": {
+   "family": "David Libre",
+   "file": "DavidLibre-Medium.ttf",
+   "weights": "500"
+  }
+ },
+ "display_classes": [
+  "hero",
+  "h1",
+  "h2"
+ ],
+ "text_classes": [
+  "label",
+  "deck",
+  "folio",
+  "story"
+ ],
+ "type": {
+  "hero": [
+   500,
+   40
+  ],
+  "h1": [
+   500,
+   24
+  ],
+  "h2": [
+   500,
+   24
+  ],
+  "deck": [
+   500,
+   10
+  ],
+  "story": [
+   500,
+   11
+  ],
+  "label": [
+   500,
+   10
+  ],
+  "folio": [
+   500,
+   9
+  ]
+ },
+ "margin": {
+  "outer": 20,
+  "spine": 22,
+  "top": 20
+ },
+ "gap": 9,
+ "grade": {
+  "neutralize": 0.4,
+  "contrast": 1.04,
+  "saturation": 1.0,
+  "warmth": 0.02
+ },
+ "frame": "keyline",
+ "keyline": "ill0",
+ "edge": false,
+ "edge_share": 0,
+ "opener_spreads": false,
+ "quiet_scale": 0.74,
+ "cover": "side",
+ "cover_ill": "sprig",
+ "title_deco": "ill",
+ "default_ill": "sprig",
+ "ornaments": [],
+ "illustrations": true,
+ "deck": "dots",
+ "running_heads": false,
+ "structures": [
+  "album",
+  "journal"
+ ]
+}

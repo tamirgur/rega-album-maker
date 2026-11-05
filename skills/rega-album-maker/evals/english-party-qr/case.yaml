@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: english-party-qr
+expected_outcome: |
+  An English A5 portrait photo book (148 x 210 mm) of the birthday, reading left to right, with a QR code on the day page that scans to https://youtu.be/aqz-KE-bpKQ?t=30. The screenshot is left out, no route map is drawn (the photos have no GPS), and no names, places or facts beyond the prompt are invented.
+context:
+  scaffold_script: place-files.sh

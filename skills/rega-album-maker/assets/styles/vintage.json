@@ -1,0 +1,99 @@
+{
+ "name": "vintage",
+ "he": "וינטג'",
+ "en": "Vintage",
+ "n": 4,
+ "describe": "Grained paper, prints taped in a warm brown tone, a handwritten title and a date stamp.",
+ "describe_he": "נייר מגורען, הדפסים מודבקים בגוון חום, כותרת בכתב יד וחותמת תאריך.",
+ "palette": "earth",
+ "paper": "#ECE3D2",
+ "palettes": [
+  "earth",
+  "sand",
+  "neutral"
+ ],
+ "texture": "grain",
+ "fonts": {
+  "display": {
+   "family": "Amatic SC",
+   "file": "AmaticSC-Bold.ttf",
+   "weights": "700"
+  },
+  "text": {
+   "family": "David Libre",
+   "file": "DavidLibre-Medium.ttf",
+   "weights": "500"
+  }
+ },
+ "display_classes": [
+  "hero",
+  "h1",
+  "h2"
+ ],
+ "text_classes": [
+  "label",
+  "deck",
+  "folio"
+ ],
+ "type": {
+  "hero": [
+   700,
+   60
+  ],
+  "h1": [
+   700,
+   44
+  ],
+  "h2": [
+   700,
+   42
+  ],
+  "deck": [
+   500,
+   10
+  ],
+  "story": [
+   300,
+   11
+  ],
+  "label": [
+   500,
+   10
+  ],
+  "folio": [
+   500,
+   9
+  ]
+ },
+ "margin": {
+  "outer": 18,
+  "spine": 20,
+  "top": 16
+ },
+ "gap": 14,
+ "grade": {
+  "neutralize": 0.4,
+  "contrast": 1.04,
+  "saturation": 1.0,
+  "warmth": 0.01,
+  "mode": "warm"
+ },
+ "frame": "print",
+ "tilt": 2.2,
+ "tape": "plain",
+ "head_extra": 8,
+ "edge": false,
+ "edge_share": 0,
+ "opener_spreads": false,
+ "quiet_scale": 0.74,
+ "cover": "centred",
+ "title_deco": "stamp",
+ "ornaments": [],
+ "illustrations": false,
+ "deck": "dots",
+ "running_heads": false,
+ "structures": [
+  "album",
+  "journal"
+ ]
+}

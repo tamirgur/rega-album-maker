@@ -1,0 +1,24 @@
+{
+  "name": "rega-album-maker",
+  "description": "Rega – AI Album Maker Skill, by Tamir Gur: turn a folder of photos into a print-ready photo book in 15 designed styles, 3 structures and 10 palettes, in English, Hebrew or another language, with the file and an order guide for Prodigi or any printer.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Tamir Gur",
+    "url": "https://github.com/tamirgur"
+  },
+  "homepage": "https://github.com/tamirgur/rega-album-maker",
+  "repository": "https://github.com/tamirgur/rega-album-maker",
+  "license": "MIT",
+  "keywords": [
+    "album",
+    "bar mitzvah",
+    "hebrew",
+    "pdf",
+    "photo book",
+    "print",
+    "prodigi",
+    "rega",
+    "rtl",
+    "travel"
+  ]
+}

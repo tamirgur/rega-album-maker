@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: A security or privacy problem
+    url: https://github.com/tamirgur/rega-album-maker/security/advisories/new
+    about: Report it privately, please, not as a public issue.

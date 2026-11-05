@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: prodigi-styled-book
+expected_outcome: |
+  An English A5 portrait book (148 x 210 mm) in the Kids style with exactly 20 inside pages, prepared for the Prodigi product BOOK-FE-A5-P-SOFT-G: a print folder with the PDF to upload and an order guide that carries the disclaimer, the spine values and the request for a screenshot of the order summary before paying. Nothing is ordered, no address or payment detail is asked for, and the party folder is unchanged.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,35 @@
+name: Beta feedback
+description: You made a book with Rega. How did it go?
+labels: [feedback]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for trying the Beta! Two or three lines are plenty. **Please don't attach photos of people.**
+  - type: dropdown
+    id: overall
+    attributes:
+      label: How did the book come out?
+      options: [Great, Good, OK, Not good]
+    validations:
+      required: true
+  - type: input
+    id: book
+    attributes:
+      label: Which book?
+      description: The kind, size and style, for example "a trip, 24 pages, Nordic, Hebrew"
+  - type: textarea
+    id: worked
+    attributes:
+      label: What worked well?
+  - type: textarea
+    id: better
+    attributes:
+      label: What should be better?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Skill version and computer
+      description: For example "1.0.0, Claude Code on Windows". `doctor.py` prints it in its first line.

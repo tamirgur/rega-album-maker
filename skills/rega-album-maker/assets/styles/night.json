@@ -1,0 +1,76 @@
+{
+ "name": "night",
+ "he": "לילה",
+ "en": "Night",
+ "n": 10,
+ "describe": "Deep slate pages, a thin white line around the photos, the moon and stars.",
+ "describe_he": "עמודים בכחול צפחה, קו לבן דק סביב התמונות, ירח וכוכבים.",
+ "palette": "night",
+ "palettes": [
+  "night"
+ ],
+ "type": {
+  "hero": [
+   200,
+   44
+  ],
+  "h1": [
+   200,
+   28
+  ],
+  "h2": [
+   200,
+   28
+  ],
+  "deck": [
+   400,
+   10
+  ],
+  "story": [
+   300,
+   11
+  ],
+  "label": [
+   400,
+   9.5
+  ],
+  "folio": [
+   400,
+   9
+  ]
+ },
+ "label_spacing": ".04em",
+ "margin": {
+  "outer": 18,
+  "spine": 20,
+  "top": 18
+ },
+ "gap": 8,
+ "grade": {
+  "neutralize": 0.4,
+  "contrast": 1.04,
+  "saturation": 1.0,
+  "warmth": 0.01
+ },
+ "frame": "keyline",
+ "keyline": "rgba(255,255,255,.55)",
+ "edge": false,
+ "edge_share": 0,
+ "opener_spreads": false,
+ "quiet_scale": 0.74,
+ "cover": "centred",
+ "cover_ill": "moon",
+ "title_deco": "ill",
+ "default_ill": "moon",
+ "ornaments": [],
+ "illustrations": true,
+ "fonts": {},
+ "display_classes": [],
+ "text_classes": [],
+ "deck": "dots",
+ "running_heads": false,
+ "structures": [
+  "album",
+  "journal"
+ ]
+}

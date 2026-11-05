@@ -1,0 +1,42 @@
+name: Bug report
+description: Something went wrong while making a book
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you! **Please don't attach real photos of people.** Describe the problem; a screenshot of a page is fine
+        only if no one is in it.
+  - type: input
+    id: version
+    attributes:
+      label: Skill version
+      description: From `/plugin list`, or the `version` in `.claude-plugin/plugin.json`
+      placeholder: 1.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where did you run it?
+      options: [Claude Code, Cowork, Another agent]
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: Computer
+      description: Windows, macOS or Linux, and the Python version (`python --version`)
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and at which stage?
+      description: The stage line ("Stage 4 of 10 ..."), what you asked, and what went wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Messages or errors
+      description: Paste the script output if there was one. Remove names and folder paths you'd rather not share.
+      render: text

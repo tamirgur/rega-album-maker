@@ -1,0 +1,101 @@
+{
+ "name": "pastel",
+ "he": "פסטל",
+ "en": "Pastel",
+ "n": 13,
+ "describe": "Dusty pink and sage, soft arches, rounded corners.",
+ "describe_he": "ורוד מאובק ומרווה, קשתות רכות, פינות מעוגלות.",
+ "palette": "pastel",
+ "palettes": [
+  "pastel",
+  "mist",
+  "sage",
+  "vivid"
+ ],
+ "fonts": {
+  "display": {
+   "family": "Fredoka",
+   "file": "Fredoka-SemiBold.ttf",
+   "weights": "600"
+  },
+  "text": {
+   "family": "Fredoka",
+   "file": "Fredoka-Regular.ttf",
+   "weights": "400"
+  }
+ },
+ "display_classes": [
+  "hero",
+  "h1",
+  "h2"
+ ],
+ "text_classes": [
+  "label",
+  "deck",
+  "folio",
+  "story"
+ ],
+ "type": {
+  "hero": [
+   600,
+   42
+  ],
+  "h1": [
+   600,
+   28
+  ],
+  "h2": [
+   600,
+   28
+  ],
+  "deck": [
+   400,
+   10
+  ],
+  "story": [
+   400,
+   11
+  ],
+  "label": [
+   400,
+   10
+  ],
+  "folio": [
+   400,
+   9
+  ]
+ },
+ "tints": true,
+ "margin": {
+  "outer": 18,
+  "spine": 20,
+  "top": 18
+ },
+ "gap": 7,
+ "grade": {
+  "neutralize": 0.4,
+  "contrast": 1.04,
+  "saturation": 1.0,
+  "warmth": 0.01,
+  "mode": "soft"
+ },
+ "frame": "soft",
+ "edge": false,
+ "edge_share": 0,
+ "opener_spreads": false,
+ "quiet_scale": 0.72,
+ "cover": "centred",
+ "cover_arch": true,
+ "title_align": "center",
+ "title_deco": "pill",
+ "ornaments": [
+  "arch"
+ ],
+ "illustrations": true,
+ "deck": "dots",
+ "running_heads": false,
+ "structures": [
+  "album",
+  "journal"
+ ]
+}

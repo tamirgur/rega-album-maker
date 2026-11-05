@@ -1,0 +1,169 @@
+{
+ "_about": "Colours by role. A palette never colours the photos, only the paper, the words and the decorations. \"photos\" takes the accent and the decoration colours from the book's own photos. A brand is given in the brief as {\"accent\": \"#hex\"} (and optionally \"ink\").",
+ "photos": {
+  "he": "מהתמונות",
+  "en": "From the photos",
+  "auto": true,
+  "describe": "The accent and the decoration colours come from the book's own photos (the orange of the tablecloths, the green of the trees), toned to the style. Paper and ink stay the style's own."
+ },
+ "neutral": {
+  "he": "ניטרלי",
+  "en": "Neutral",
+  "paper": "#FFFFFF",
+  "ink": "#1E1E1E",
+  "label": "#858585",
+  "accent": "#6F6A63",
+  "tints": [
+   "#FFFFFF",
+   "#F5F5F3"
+  ],
+  "dark": "#1E1E1E",
+  "endpaper": "#2B2B2B",
+  "ill": [
+   "#C9C4BC",
+   "#8A8A8A",
+   "#E2DED7"
+  ],
+  "accent_from_photos": true
+ },
+ "sand": {
+  "he": "חול",
+  "en": "Sand",
+  "paper": "#EFE6D8",
+  "ink": "#3A3631",
+  "label": "#8C8379",
+  "accent": "#B86B4B",
+  "tints": [
+   "#EFE6D8",
+   "#F4EFE7",
+   "#F1E3DF",
+   "#E4EAEF",
+   "#E3E9E0"
+  ],
+  "dark": "#2E3A4B",
+  "endpaper": "#5B4636",
+  "ill": [
+   "#DDB65A",
+   "#C98B7A",
+   "#9AAA7B"
+  ]
+ },
+ "mist": {
+  "he": "ערפל",
+  "en": "Mist",
+  "paper": "#E7ECF0",
+  "ink": "#2F3A44",
+  "label": "#7A8794",
+  "accent": "#C9806B",
+  "tints": [
+   "#E4EAEF",
+   "#EEF2F5",
+   "#E6ECE6"
+  ],
+  "dark": "#2E3A4B",
+  "endpaper": "#2F3A44",
+  "ill": [
+   "#9DB4C6",
+   "#D9957F",
+   "#E5D6A8"
+  ]
+ },
+ "sage": {
+  "he": "מרווה",
+  "en": "Sage",
+  "paper": "#E7E5D6",
+  "ink": "#33372C",
+  "label": "#6B7A3A",
+  "accent": "#B48A3E",
+  "tints": [
+   "#E3E9E0",
+   "#ECEBE0",
+   "#F0EBDD"
+  ],
+  "dark": "#2F3A33",
+  "endpaper": "#4A5A3A",
+  "ill": [
+   "#6B7A3A",
+   "#B48A3E",
+   "#A9B98F"
+  ]
+ },
+ "pastel": {
+  "he": "פסטל",
+  "en": "Pastel",
+  "paper": "#F3E6E3",
+  "ink": "#5A3E44",
+  "label": "#9A8582",
+  "accent": "#B9777E",
+  "tints": [
+   "#F3E6E3",
+   "#E6EDE4",
+   "#F4EBD9"
+  ],
+  "dark": "#5A3E44",
+  "endpaper": "#8C5A60",
+  "ill": [
+   "#F2E2B8",
+   "#D9E4D5",
+   "#E8C7C6"
+  ]
+ },
+ "vivid": {
+  "he": "עז",
+  "en": "Vivid",
+  "paper": "#CDE7F2",
+  "ink": "#23415A",
+  "label": "#4C6880",
+  "accent": "#E85D45",
+  "tints": [
+   "#CDE7F2",
+   "#FFF1CF",
+   "#D8EFE3"
+  ],
+  "dark": "#23415A",
+  "endpaper": "#23415A",
+  "ill": [
+   "#F2725B",
+   "#FFD166",
+   "#7FC8A9"
+  ]
+ },
+ "earth": {
+  "he": "אדמה",
+  "en": "Earth",
+  "paper": "#F3E7CF",
+  "ink": "#4A2C1E",
+  "label": "#8A5B3D",
+  "accent": "#A9472A",
+  "tints": [
+   "#F3E7CF",
+   "#EFE0C4"
+  ],
+  "dark": "#3B2A20",
+  "endpaper": "#5A3726",
+  "ill": [
+   "#5A3726",
+   "#D57A2E",
+   "#E3AE45"
+  ]
+ },
+ "night": {
+  "he": "לילה",
+  "en": "Night",
+  "paper": "#2B3544",
+  "ink": "#F3F1EC",
+  "label": "#A9B3C1",
+  "accent": "#E9D9A6",
+  "tints": [
+   "#2B3544",
+   "#26303D"
+  ],
+  "dark": "#1E2530",
+  "endpaper": "#1E2530",
+  "ill": [
+   "#E9D9A6",
+   "#C9D3DA",
+   "#8FA3B8"
+  ]
+ }
+}

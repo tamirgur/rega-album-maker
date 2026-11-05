@@ -1,0 +1,78 @@
+{
+ "name": "mosaic",
+ "he": "פסיפס",
+ "en": "Mosaic",
+ "n": 15,
+ "describe": "A tight grid with 2 mm gaps, many photos, the title on a tile of colour.",
+ "describe_he": "רשת צפופה במרווח 2 מ\"מ, הרבה תמונות, והכותרת על אריח צבע.",
+ "palette": "photos",
+ "base_palette": "neutral",
+ "paper": "#FAF8F4",
+ "palettes": [
+  "photos",
+  "neutral",
+  "sage",
+  "earth"
+ ],
+ "type": {
+  "hero": [
+   600,
+   40
+  ],
+  "h1": [
+   600,
+   24
+  ],
+  "h2": [
+   600,
+   24
+  ],
+  "deck": [
+   400,
+   10
+  ],
+  "story": [
+   300,
+   11
+  ],
+  "label": [
+   400,
+   9.5
+  ],
+  "folio": [
+   400,
+   9
+  ]
+ },
+ "margin": {
+  "outer": 10,
+  "spine": 14,
+  "top": 10
+ },
+ "gap": 2,
+ "grade": {
+  "neutralize": 0.4,
+  "contrast": 1.04,
+  "saturation": 1.0,
+  "warmth": 0.01
+ },
+ "frame": "none",
+ "edge": false,
+ "edge_share": 0,
+ "opener_spreads": false,
+ "quiet_scale": 0.9,
+ "fill_whole": true,
+ "cover": "mosaic",
+ "title_deco": "tile",
+ "ornaments": [],
+ "illustrations": false,
+ "fonts": {},
+ "display_classes": [],
+ "text_classes": [],
+ "deck": "dots",
+ "running_heads": false,
+ "structures": [
+  "album",
+  "journal"
+ ]
+}

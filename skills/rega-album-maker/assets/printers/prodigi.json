@@ -1,0 +1,453 @@
+{
+ "source": "Prodigi dashboard catalogue (dashboard.prodigi.com/product-catalogue/books-and-magazines/*) and the official print guides (prodigi.com/download/print-guides/*-photo-book-print-guide.pdf, metadata 2026-09-28)",
+ "captured": "2026-11-04",
+ "price_note": "price_usd is the dashboard's variant price; Prodigi: 'Price shown includes a base page count; additional pages carry a per-page cost.' The base page count and the per-page cost are NOT shown in the catalogue; they are in the Pricing sheets CSV (dashboard > Pricing sheets > Books & Magazines > country), not downloaded yet.",
+ "size_note": "Dashboard labels 8_3 as '8x8\"' but the guides give 210x210 mm. 11_7 is labelled '12x12\"': the hardcover guide says 294x294 mm, the layflat guide 297x297 mm (unresolved). LETTER is labelled '9x11\" 5:4' in the dashboard; the hardcover guide says 8.5x11\" = 216x279 mm. Magazines 'SL' = 'Letter (216x280mm)' on the category page.",
+ "products": {
+  "hardcover": {
+   "binding": "PUR",
+   "cover": "matte-laminate hardcover",
+   "pages": [
+    24,
+    300
+   ],
+   "pages_note": "-G-F (150gsm gloss) goes to 500 pages",
+   "fulfilled_from": [
+    "AU",
+    "EU",
+    "MX",
+    "UK",
+    "US"
+   ],
+   "lead_time_h": 120,
+   "blank_pages_added": "inside front cover, a binding sheet (both sides) front and back, inside back cover",
+   "gutter_hidden_mm": 6
+  },
+  "softcover": {
+   "binding": "PUR",
+   "cover": "matte-laminate softcover",
+   "pages": [
+    20,
+    300
+   ],
+   "fulfilled_from": [
+    "AU",
+    "EU",
+    "UK",
+    "US"
+   ],
+   "lead_time_h": 120,
+   "blank_pages_added": "inside front cover, inside back cover",
+   "gutter_hidden_mm": 6
+  },
+  "layflat": {
+   "binding": "layflat",
+   "cover": "matte-laminate hardcover",
+   "pages": [
+    18,
+    122
+   ],
+   "fulfilled_from": [
+    "EU",
+    "US"
+   ],
+   "lead_time_h": 120,
+   "blank_pages_added": "inside front cover, inside back cover",
+   "gutter_hidden_mm": 0,
+   "margins_note": "first right-hand page: 10 mm top/bottom/right, none on the inside edge; spreads saved as separate single pages"
+  },
+  "magazine": {
+   "binding": "PUR",
+   "cover": "250gsm laminated softcover, matte or gloss",
+   "inner": "115gsm silk or gloss",
+   "pages": [
+    20,
+    500
+   ],
+   "fulfilled_from": [
+    "AU",
+    "EU",
+    "UK",
+    "US"
+   ],
+   "lead_time_h": 120,
+   "note": "magazine print guide not read yet"
+  }
+ },
+ "file_rules": {
+  "single_pdf": true,
+  "single_pages_not_spreads": true,
+  "page_1": "front cover",
+  "page_2": "first right-hand content page",
+  "last_page": "back cover",
+  "even_page_count": true,
+  "odd_count": "guide: the final page is left white; blog: odd counts are rejected. Always make it even.",
+  "page_size": "exactly the trim size",
+  "bleed": "none, no crop marks (Prodigi adds them)",
+  "safe_area_mm": 10,
+  "trim_variation_mm": 1,
+  "resolution_dpi": 300,
+  "colour": "RGB",
+  "pdf_standard": "PDF/X-4 recommended; fonts embedded; transparencies flattened",
+  "binding_side": "left only; a Hebrew book needs the mirrored file [back, pN..p1, front]",
+  "spine": "not in the file for manual orders; set in the order form (text, font, size in px, background colour, text colour); width calculated from the page count and paper",
+  "spine_text_min_pages": 40,
+  "spine_font_size_pt_from_sample_guide": {
+   "layflat": "12-14",
+   "hardcover": "11-13",
+   "magazine": "8-10",
+   "softcover": "7-9"
+  },
+  "spine_fonts_seen": [
+   "Helvetica",
+   "Arial",
+   "Brandon"
+  ]
+ },
+ "variants": [
+  {
+   "sku": "BOOK-FE-A5-P-HARD-G",
+   "type": "hardcover",
+   "w_mm": 148,
+   "h_mm": 210,
+   "paper": "gloss 200gsm",
+   "price_usd": 10.0
+  },
+  {
+   "sku": "BOOK-FE-A5-L-HARD-G",
+   "type": "hardcover",
+   "w_mm": 210,
+   "h_mm": 148,
+   "paper": "gloss 200gsm",
+   "price_usd": 10.0
+  },
+  {
+   "sku": "BOOK-FE-A4-P-HARD-G",
+   "type": "hardcover",
+   "w_mm": 210,
+   "h_mm": 297,
+   "paper": "gloss 200gsm",
+   "price_usd": 12.5
+  },
+  {
+   "sku": "BOOK-FE-A4-L-HARD-G",
+   "type": "hardcover",
+   "w_mm": 297,
+   "h_mm": 210,
+   "paper": "gloss 200gsm",
+   "price_usd": 12.5
+  },
+  {
+   "sku": "BOOK-FE-LETTER-P-HARD-G",
+   "type": "hardcover",
+   "w_mm": 216,
+   "h_mm": 279,
+   "paper": "gloss 200gsm",
+   "price_usd": 12.5
+  },
+  {
+   "sku": "BOOK-FE-LETTER-L-HARD-G",
+   "type": "hardcover",
+   "w_mm": 279,
+   "h_mm": 216,
+   "paper": "gloss 200gsm",
+   "price_usd": 12.5
+  },
+  {
+   "sku": "BOOK-FE-8_3-SQ-HARD-G",
+   "type": "hardcover",
+   "w_mm": 210,
+   "h_mm": 210,
+   "paper": "gloss 200gsm",
+   "price_usd": 12.5
+  },
+  {
+   "sku": "BOOK-FE-11_7-SQ-HARD-G",
+   "type": "hardcover",
+   "w_mm": 294,
+   "h_mm": 294,
+   "paper": "gloss 200gsm",
+   "price_usd": 20.5,
+   "verify": "294 (hardcover guide) vs 297 (layflat guide)"
+  },
+  {
+   "sku": "BOOK-FE-A5-P-HARD-G-F",
+   "type": "hardcover",
+   "w_mm": 148,
+   "h_mm": 210,
+   "paper": "gloss 150gsm",
+   "price_usd": 10.0,
+   "max_pages": 500
+  },
+  {
+   "sku": "BOOK-FE-A4-P-HARD-G-F",
+   "type": "hardcover",
+   "w_mm": 210,
+   "h_mm": 297,
+   "paper": "gloss 150gsm",
+   "price_usd": 12.5,
+   "max_pages": 500
+  },
+  {
+   "sku": "BOOK-FE-A4-L-HARD-G-F",
+   "type": "hardcover",
+   "w_mm": 297,
+   "h_mm": 210,
+   "paper": "gloss 150gsm",
+   "price_usd": 12.5,
+   "max_pages": 500
+  },
+  {
+   "sku": "BOOK-FE-8_3-SQ-HARD-G-F",
+   "type": "hardcover",
+   "w_mm": 210,
+   "h_mm": 210,
+   "paper": "gloss 150gsm",
+   "price_usd": 12.5,
+   "max_pages": 500
+  },
+  {
+   "sku": "BOOK-FE-A5-P-HARD-MHK",
+   "type": "hardcover",
+   "w_mm": 148,
+   "h_mm": 210,
+   "paper": "Mohawk matte 120gsm",
+   "price_usd": 11.0
+  },
+  {
+   "sku": "BOOK-FE-A5-L-HARD-MHK",
+   "type": "hardcover",
+   "w_mm": 210,
+   "h_mm": 148,
+   "paper": "Mohawk matte 120gsm",
+   "price_usd": 11.0
+  },
+  {
+   "sku": "BOOK-FE-A4-P-HARD-MHK",
+   "type": "hardcover",
+   "w_mm": 210,
+   "h_mm": 297,
+   "paper": "Mohawk matte 120gsm",
+   "price_usd": 13.0
+  },
+  {
+   "sku": "BOOK-FE-A4-L-HARD-MHK",
+   "type": "hardcover",
+   "w_mm": 297,
+   "h_mm": 210,
+   "paper": "Mohawk matte 120gsm",
+   "price_usd": 13.0
+  },
+  {
+   "sku": "BOOK-FE-8_3-SQ-HARD-MHK",
+   "type": "hardcover",
+   "w_mm": 210,
+   "h_mm": 210,
+   "paper": "Mohawk matte 120gsm",
+   "price_usd": 13.0
+  },
+  {
+   "sku": "BOOK-FE-A5-P-SOFT-G",
+   "type": "softcover",
+   "w_mm": 148,
+   "h_mm": 210,
+   "paper": "gloss 150gsm",
+   "price_usd": 8.0
+  },
+  {
+   "sku": "BOOK-FE-A5-L-SOFT-G",
+   "type": "softcover",
+   "w_mm": 210,
+   "h_mm": 148,
+   "paper": "gloss 150gsm",
+   "price_usd": 8.0
+  },
+  {
+   "sku": "BOOK-FE-A4-P-SOFT-G",
+   "type": "softcover",
+   "w_mm": 210,
+   "h_mm": 297,
+   "paper": "gloss 150gsm",
+   "price_usd": 8.5
+  },
+  {
+   "sku": "BOOK-FE-A4-L-SOFT-G",
+   "type": "softcover",
+   "w_mm": 297,
+   "h_mm": 210,
+   "paper": "gloss 150gsm",
+   "price_usd": 8.5
+  },
+  {
+   "sku": "BOOK-FE-8_3-SQ-SOFT-G",
+   "type": "softcover",
+   "w_mm": 210,
+   "h_mm": 210,
+   "paper": "gloss 150gsm",
+   "price_usd": 8.5
+  },
+  {
+   "sku": "BOOK-FE-A5-P-SOFT-MHK",
+   "type": "softcover",
+   "w_mm": 148,
+   "h_mm": 210,
+   "paper": "Mohawk matte 120gsm",
+   "price_usd": 9.0
+  },
+  {
+   "sku": "BOOK-FE-A4-P-SOFT-MHK",
+   "type": "softcover",
+   "w_mm": 210,
+   "h_mm": 297,
+   "paper": "Mohawk matte 120gsm",
+   "price_usd": 10.0
+  },
+  {
+   "sku": "BOOK-FE-A4-P-LF-G",
+   "type": "layflat",
+   "w_mm": 210,
+   "h_mm": 297,
+   "paper": "E-Photo Lustre 190gsm",
+   "price_usd": 28.5
+  },
+  {
+   "sku": "BOOK-FE-A4-L-LF-G",
+   "type": "layflat",
+   "w_mm": 297,
+   "h_mm": 210,
+   "paper": "E-Photo Lustre 190gsm",
+   "price_usd": 28.5
+  },
+  {
+   "sku": "BOOK-FE-8_3-SQ-LF-G",
+   "type": "layflat",
+   "w_mm": 210,
+   "h_mm": 210,
+   "paper": "E-Photo Lustre 190gsm",
+   "price_usd": 28.5
+  },
+  {
+   "sku": "BOOK-FE-11_7-SQ-LF-G",
+   "type": "layflat",
+   "w_mm": 297,
+   "h_mm": 297,
+   "paper": "E-Photo Lustre 190gsm",
+   "price_usd": 33.5,
+   "verify": "297 (layflat guide) vs 294 (hardcover guide)"
+  },
+  {
+   "sku": "MAGZ-A5-P-G",
+   "type": "magazine",
+   "w_mm": 148,
+   "h_mm": 210,
+   "paper": "gloss 115gsm, gloss cover",
+   "price_usd": 4.75
+  },
+  {
+   "sku": "MAGZ-A5-P-M",
+   "type": "magazine",
+   "w_mm": 148,
+   "h_mm": 210,
+   "paper": "silk 115gsm, matte cover",
+   "price_usd": 4.75
+  },
+  {
+   "sku": "MAGZ-A5-L-G",
+   "type": "magazine",
+   "w_mm": 210,
+   "h_mm": 148,
+   "paper": "gloss 115gsm, gloss cover",
+   "price_usd": 4.75
+  },
+  {
+   "sku": "MAGZ-A5-L-M",
+   "type": "magazine",
+   "w_mm": 210,
+   "h_mm": 148,
+   "paper": "silk 115gsm, matte cover",
+   "price_usd": 4.75
+  },
+  {
+   "sku": "MAGZ-A4-P-G",
+   "type": "magazine",
+   "w_mm": 210,
+   "h_mm": 297,
+   "paper": "gloss 115gsm, gloss cover",
+   "price_usd": 5.75
+  },
+  {
+   "sku": "MAGZ-A4-P-M",
+   "type": "magazine",
+   "w_mm": 210,
+   "h_mm": 297,
+   "paper": "silk 115gsm, matte cover",
+   "price_usd": 5.75
+  },
+  {
+   "sku": "MAGZ-A4-L-G",
+   "type": "magazine",
+   "w_mm": 297,
+   "h_mm": 210,
+   "paper": "gloss 115gsm, gloss cover",
+   "price_usd": 5.75
+  },
+  {
+   "sku": "MAGZ-A4-L-M",
+   "type": "magazine",
+   "w_mm": 297,
+   "h_mm": 210,
+   "paper": "silk 115gsm, matte cover",
+   "price_usd": 5.75
+  },
+  {
+   "sku": "MAGZ-SL-P-G",
+   "type": "magazine",
+   "w_mm": 216,
+   "h_mm": 280,
+   "paper": "gloss 115gsm, gloss cover",
+   "price_usd": 5.75
+  },
+  {
+   "sku": "MAGZ-SL-P-M",
+   "type": "magazine",
+   "w_mm": 216,
+   "h_mm": 280,
+   "paper": "silk 115gsm, matte cover",
+   "price_usd": 5.75
+  },
+  {
+   "sku": "MAGZ-SL-L-G",
+   "type": "magazine",
+   "w_mm": 280,
+   "h_mm": 216,
+   "paper": "gloss 115gsm, gloss cover",
+   "price_usd": 5.75
+  },
+  {
+   "sku": "MAGZ-SL-L-M",
+   "type": "magazine",
+   "w_mm": 280,
+   "h_mm": 216,
+   "paper": "silk 115gsm, matte cover",
+   "price_usd": 5.75
+  }
+ ],
+ "observed_prices": {
+  "note": "Example prices seen in October 2026 for books shipped to Israel, before shipping, for reference only. Prices change: the dashboard Summary step is the only exact price.",
+  "items": [
+   {
+    "sku": "BOOK-FE-8_3-SQ-HARD-G",
+    "pdf_pages": 74,
+    "item_usd": 25.21
+   },
+   {
+    "sku": "BOOK-FE-A5-P-SOFT-G",
+    "pdf_pages": 22,
+    "item_usd": 8.76
+   }
+  ],
+  "shipping": "Two books shipped together from Germany to Israel cost USD 19.27 (October 2026)."
+ },
+ "disclaimer": "Prodigi is listed because it is a print service that ships worldwide (Israel included) and takes a ready PDF. This is not a recommendation, and the skill takes no responsibility for the print, the price, the delivery or the order.",
+ "spine_hebrew": "The spine field does not accept Hebrew (checked November 2026). Use English, numbers, or colour only."
+}

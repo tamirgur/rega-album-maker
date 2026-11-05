@@ -1,0 +1,99 @@
+{
+ "name": "kids",
+ "he": "ילדים",
+ "en": "Kids",
+ "n": 5,
+ "describe": "Sky blue, thick white rounded frames, confetti, a yellow date tag.",
+ "describe_he": "תכלת, מסגרות לבנות מעוגלות, קונפטי ותגית תאריך צהובה.",
+ "palette": "vivid",
+ "palettes": [
+  "vivid",
+  "pastel",
+  "photos"
+ ],
+ "fonts": {
+  "display": {
+   "family": "Varela Round",
+   "file": "VarelaRound-Regular.ttf",
+   "weights": "400"
+  },
+  "text": {
+   "family": "Varela Round",
+   "file": "VarelaRound-Regular.ttf",
+   "weights": "400"
+  }
+ },
+ "display_classes": [
+  "hero",
+  "h1",
+  "h2"
+ ],
+ "text_classes": [
+  "label",
+  "deck",
+  "folio"
+ ],
+ "type": {
+  "hero": [
+   400,
+   44
+  ],
+  "h1": [
+   400,
+   30
+  ],
+  "h2": [
+   400,
+   30
+  ],
+  "deck": [
+   400,
+   10
+  ],
+  "story": [
+   400,
+   11
+  ],
+  "label": [
+   400,
+   10
+  ],
+  "folio": [
+   400,
+   9
+  ]
+ },
+ "title_color": "accent",
+ "margin": {
+  "outer": 18,
+  "spine": 20,
+  "top": 16
+ },
+ "gap": 14,
+ "grade": {
+  "neutralize": 0.4,
+  "contrast": 1.04,
+  "saturation": 1.05,
+  "warmth": 0.01
+ },
+ "frame": "rounded",
+ "tilt": 1.8,
+ "head_extra": 6,
+ "edge": false,
+ "edge_share": 0,
+ "opener_spreads": false,
+ "quiet_scale": 0.72,
+ "cover": "centred",
+ "title_align": "center",
+ "title_deco": "pill",
+ "ornaments": [
+  "confetti"
+ ],
+ "illustrations": true,
+ "deck": "dots",
+ "running_heads": false,
+ "structures": [
+  "album",
+  "journal"
+ ]
+}

@@ -1,0 +1,6 @@
+Pillow>=10.0
+segno>=1.5
+pillow-heif>=0.16
+PyMuPDF>=1.24
+zxing-cpp>=2.2; python_version >= "3.10"  # optional: checks that QR codes scan; no wheels for 3.9
+opencv-python-headless>=4.8

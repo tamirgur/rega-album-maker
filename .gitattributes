@@ -1,0 +1,17 @@
+# text files are stored with LF everywhere; binaries are left alone
+* text=auto eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.ttf binary
+*.onnx binary
+*.jpg binary
+*.JPG binary
+*.jpeg binary
+*.png binary
+*.heic binary
+*.mp4 binary
+*.mov binary
+*.MOV binary
+*.dng binary
+*.webp binary
+*.CR2 binary

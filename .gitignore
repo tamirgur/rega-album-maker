@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+album-work/
+*-workspace/
+skills/rega-album-maker/evals/results/
+*.skill

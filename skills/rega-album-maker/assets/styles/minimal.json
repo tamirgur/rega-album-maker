@@ -1,0 +1,76 @@
+{
+ "name": "minimal",
+ "he": "מינימלי",
+ "en": "Minimal",
+ "n": 1,
+ "describe": "White, big photos in wide margins, a thin title.",
+ "describe_he": "לבן, תמונות גדולות בשוליים רחבים, כותרת דקה.",
+ "palette": "neutral",
+ "palettes": [
+  "neutral",
+  "photos",
+  "mist",
+  "sand"
+ ],
+ "type": {
+  "hero": [
+   300,
+   42
+  ],
+  "h1": [
+   300,
+   24
+  ],
+  "h2": [
+   300,
+   22
+  ],
+  "deck": [
+   400,
+   10
+  ],
+  "story": [
+   300,
+   11
+  ],
+  "label": [
+   400,
+   9.5
+  ],
+  "folio": [
+   400,
+   9
+  ]
+ },
+ "margin": {
+  "outer": 18,
+  "spine": 20,
+  "top": 18
+ },
+ "gap": 6,
+ "grade": {
+  "neutralize": 0.4,
+  "contrast": 1.04,
+  "saturation": 1.0,
+  "warmth": 0.01
+ },
+ "frame": "none",
+ "edge": true,
+ "edge_share": 0.25,
+ "opener_spreads": false,
+ "quiet_scale": 0.8,
+ "cover": "side",
+ "title_deco": null,
+ "ornaments": [],
+ "illustrations": false,
+ "fonts": {},
+ "display_classes": [],
+ "text_classes": [],
+ "deck": "dots",
+ "running_heads": false,
+ "structures": [
+  "album",
+  "journal",
+  "magazine"
+ ]
+}

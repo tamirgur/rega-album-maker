@@ -1,0 +1,53 @@
+{
+ "_about": "The skeleton of the book: the pace, how many photos a page holds, how much is written and how deep the elements go. It is independent of the style (the look) and the palette (the colours).",
+ "album": {
+  "he": "אלבום",
+  "en": "Album",
+  "per_page": 1.9,
+  "opener_spreads": false,
+  "running_heads": false,
+  "badges": false,
+  "times": false,
+  "depth": "mention",
+  "describe": "The photos tell the story. A calm pace, one moment a page, big photos, a title and a small tag.",
+  "describe_he": "התמונות מספרות. קצב רגוע, רגע אחד בעמוד, תמונות גדולות, כותרת ותגית.",
+  "for": [
+   "event",
+   "baby",
+   "year",
+   "other"
+  ]
+ },
+ "journal": {
+  "he": "יומן",
+  "en": "Journal",
+  "per_page": 2.8,
+  "opener_spreads": false,
+  "running_heads": true,
+  "badges": true,
+  "times": true,
+  "depth": "card",
+  "describe": "Day after day, in order. More photos a page, the day and the hours, one real sentence, small cards: a ticket, a stamp, an arrow to a detail.",
+  "describe_he": "יום אחרי יום, לפי הסדר. יותר תמונות בעמוד, היום והשעות, משפט אמיתי אחד, כרטיסים קטנים.",
+  "for": [
+   "trip"
+  ]
+ },
+ "magazine": {
+  "he": "מגזין",
+  "en": "Magazine",
+  "per_page": 2.2,
+  "opener_spreads": true,
+  "edge_bonus": 0.15,
+  "running_heads": true,
+  "badges": false,
+  "times": false,
+  "depth": "page",
+  "describe": "Edited like a magazine: chapters open across a spread, photos to the edge, changes of pace, whole pages for a map.",
+  "describe_he": "ערוך כמו מגזין: פתיחות פרק על כפולה, תמונות עד הקצה, שינויי קצב, עמוד שלם למפה.",
+  "for": [
+   "trip",
+   "year"
+  ]
+ }
+}

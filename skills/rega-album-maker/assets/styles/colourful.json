@@ -1,0 +1,100 @@
+{
+ "name": "colourful",
+ "he": "צבעוני",
+ "en": "Colourful",
+ "n": 6,
+ "describe": "Blocks of colour taken from the photos, photos across their edge, the words white on the block.",
+ "describe_he": "משטחי צבע שנלקחו מהתמונות, תמונות על קצה המשטח, והמילים בלבן על הצבע.",
+ "palette": "photos",
+ "base_palette": "neutral",
+ "paper": "#F4F1EA",
+ "palettes": [
+  "photos",
+  "vivid",
+  "earth",
+  "sage"
+ ],
+ "fonts": {
+  "display": {
+   "family": "Rubik",
+   "file": "Rubik-ExtraBold.ttf",
+   "weights": "800"
+  },
+  "text": {
+   "family": "Rubik",
+   "file": "Rubik-Regular.ttf",
+   "weights": "400"
+  }
+ },
+ "display_classes": [
+  "hero",
+  "h1",
+  "h2"
+ ],
+ "text_classes": [
+  "label",
+  "deck",
+  "folio",
+  "story"
+ ],
+ "type": {
+  "hero": [
+   800,
+   44
+  ],
+  "h1": [
+   800,
+   28
+  ],
+  "h2": [
+   800,
+   26
+  ],
+  "deck": [
+   400,
+   10
+  ],
+  "story": [
+   400,
+   11
+  ],
+  "label": [
+   400,
+   10
+  ],
+  "folio": [
+   400,
+   9
+  ]
+ },
+ "margin": {
+  "outer": 16,
+  "spine": 20,
+  "top": 16
+ },
+ "gap": 6,
+ "grade": {
+  "neutralize": 0.4,
+  "contrast": 1.04,
+  "saturation": 1.04,
+  "warmth": 0.01
+ },
+ "frame": "shadow",
+ "edge": true,
+ "edge_share": 0.3,
+ "opener_spreads": false,
+ "quiet_scale": 0.74,
+ "cover": "block",
+ "title_deco": "block",
+ "ornaments": [
+  "block"
+ ],
+ "illustrations": false,
+ "deck": "dots",
+ "running_heads": false,
+ "structures": [
+  "album",
+  "journal",
+  "magazine"
+ ]
+}

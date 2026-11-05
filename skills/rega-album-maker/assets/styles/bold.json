@@ -1,0 +1,94 @@
+{
+ "name": "bold",
+ "he": "נועז",
+ "en": "Bold",
+ "n": 7,
+ "describe": "Black and white to the edge, one big word, everything else small.",
+ "describe_he": "שחור־לבן עד הקצה, מילה אחת גדולה וכל השאר קטן.",
+ "palette": "neutral",
+ "palettes": [
+  "neutral",
+  "photos"
+ ],
+ "fonts": {
+  "display": {
+   "family": "Secular One",
+   "file": "SecularOne-Regular.ttf",
+   "weights": "400"
+  },
+  "text": {
+   "family": "Secular One",
+   "file": "SecularOne-Regular.ttf",
+   "weights": "400"
+  }
+ },
+ "display_classes": [
+  "hero",
+  "h1",
+  "h2"
+ ],
+ "text_classes": [
+  "label",
+  "deck",
+  "folio"
+ ],
+ "type": {
+  "hero": [
+   400,
+   64
+  ],
+  "h1": [
+   400,
+   54
+  ],
+  "h2": [
+   400,
+   46
+  ],
+  "deck": [
+   400,
+   10
+  ],
+  "story": [
+   300,
+   11
+  ],
+  "label": [
+   400,
+   11
+  ],
+  "folio": [
+   400,
+   9
+  ]
+ },
+ "margin": {
+  "outer": 14,
+  "spine": 18,
+  "top": 14
+ },
+ "gap": 4,
+ "grade": {
+  "neutralize": 0.4,
+  "contrast": 1.04,
+  "saturation": 1.0,
+  "warmth": 0.01,
+  "mode": "bw"
+ },
+ "frame": "none",
+ "edge": true,
+ "edge_share": 0.6,
+ "opener_spreads": false,
+ "quiet_scale": 0.8,
+ "cover": "bleed",
+ "title_deco": null,
+ "ornaments": [],
+ "illustrations": false,
+ "deck": "dots",
+ "running_heads": false,
+ "structures": [
+  "album",
+  "journal",
+  "magazine"
+ ]
+}

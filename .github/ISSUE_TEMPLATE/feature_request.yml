@@ -1,0 +1,15 @@
+name: Idea
+description: A style, an element, a printer, a language, or anything else
+labels: [idea]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like?
+      description: For example a new style, a kind of book, an element made from real facts, or another printer.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Which book would it help with?

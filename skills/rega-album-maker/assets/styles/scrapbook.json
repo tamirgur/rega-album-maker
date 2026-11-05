@@ -1,0 +1,99 @@
+{
+ "name": "scrapbook",
+ "he": "סקרפבוק",
+ "en": "Scrapbook",
+ "n": 11,
+ "describe": "Polaroids, coloured washi tape, handwriting, and an arrow to a real detail.",
+ "describe_he": "פולארויד, סלוטייפ צבעוני, כתב יד, וחץ שמצביע על פרט אמיתי.",
+ "palette": "sand",
+ "paper": "#F5F0E8",
+ "palettes": [
+  "sand",
+  "pastel",
+  "vivid"
+ ],
+ "texture": "dots",
+ "fonts": {
+  "display": {
+   "family": "Playpen Sans Hebrew",
+   "file": "PlaypenSansHebrew-SemiBold.ttf",
+   "weights": "600"
+  },
+  "text": {
+   "family": "Playpen Sans Hebrew",
+   "file": "PlaypenSansHebrew-Regular.ttf",
+   "weights": "400"
+  }
+ },
+ "display_classes": [
+  "hero",
+  "h1",
+  "h2"
+ ],
+ "text_classes": [
+  "label",
+  "deck",
+  "folio",
+  "story"
+ ],
+ "type": {
+  "hero": [
+   600,
+   40
+  ],
+  "h1": [
+   600,
+   30
+  ],
+  "h2": [
+   600,
+   30
+  ],
+  "deck": [
+   400,
+   10
+  ],
+  "story": [
+   400,
+   12
+  ],
+  "label": [
+   400,
+   11
+  ],
+  "folio": [
+   400,
+   9
+  ]
+ },
+ "margin": {
+  "outer": 16,
+  "spine": 20,
+  "top": 16
+ },
+ "gap": 12,
+ "grade": {
+  "neutralize": 0.4,
+  "contrast": 1.04,
+  "saturation": 1.0,
+  "warmth": 0.01
+ },
+ "frame": "polaroid",
+ "tilt": 2.5,
+ "tape": "washi",
+ "head_extra": 4,
+ "edge": false,
+ "edge_share": 0,
+ "opener_spreads": false,
+ "quiet_scale": 0.7,
+ "cover": "polaroid",
+ "title_deco": "hand",
+ "ornaments": [],
+ "illustrations": true,
+ "deck": "dots",
+ "running_heads": false,
+ "structures": [
+  "album",
+  "journal"
+ ]
+}

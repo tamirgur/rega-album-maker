@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: mixed-sources-book
+expected_outcome: |
+  A Hebrew photo book of the three days in Naxos, made with the rega-album-maker scripts from both folders: book.pdf with exactly 24 inside pages between the covers, 210 x 210 mm. The scan skipped the hidden and trashed files, counted the RAW file without reading it, marked the Live Photo's video as part of its photo, marked the WhatsApp copy of a phone photo as a copy and the sticker as too small, and kept the night photos while flagging only the one taken in a pocket. The beach moment of the first day is a key moment and has a page of its own. The panorama keeps its shape. The naxos folder is unchanged.
+context:
+  scaffold_script: place-files.sh

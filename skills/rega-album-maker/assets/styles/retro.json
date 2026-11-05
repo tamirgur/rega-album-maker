@@ -1,0 +1,99 @@
+{
+ "name": "retro",
+ "he": "רטרו",
+ "en": "Retro",
+ "n": 14,
+ "describe": "Cream, the brown and orange stripes of the seventies, prints in a warm tone.",
+ "describe_he": "שמנת, פסים חומים־כתומים של שנות ה־70, הדפסים בגוון חם.",
+ "palette": "earth",
+ "palettes": [
+  "earth",
+  "vivid",
+  "sage"
+ ],
+ "fonts": {
+  "display": {
+   "family": "Suez One",
+   "file": "SuezOne-Regular.ttf",
+   "weights": "400"
+  },
+  "text": {
+   "family": "Rubik",
+   "file": "Rubik-Regular.ttf",
+   "weights": "400"
+  }
+ },
+ "display_classes": [
+  "hero",
+  "h1",
+  "h2"
+ ],
+ "text_classes": [
+  "label",
+  "deck",
+  "folio",
+  "story"
+ ],
+ "type": {
+  "hero": [
+   400,
+   44
+  ],
+  "h1": [
+   400,
+   30
+  ],
+  "h2": [
+   400,
+   30
+  ],
+  "deck": [
+   400,
+   10
+  ],
+  "story": [
+   400,
+   11
+  ],
+  "label": [
+   400,
+   10
+  ],
+  "folio": [
+   400,
+   9
+  ]
+ },
+ "margin": {
+  "outer": 18,
+  "spine": 20,
+  "top": 16
+ },
+ "gap": 10,
+ "grade": {
+  "neutralize": 0.4,
+  "contrast": 1.04,
+  "saturation": 1.0,
+  "warmth": 0.01,
+  "mode": "retro"
+ },
+ "frame": "retro",
+ "tilt": 1.5,
+ "edge": false,
+ "edge_share": 0,
+ "opener_spreads": false,
+ "quiet_scale": 0.74,
+ "cover": "centred",
+ "cover_stripes": true,
+ "title_deco": null,
+ "ornaments": [
+  "stripes"
+ ],
+ "illustrations": false,
+ "deck": "dots",
+ "running_heads": false,
+ "structures": [
+  "album",
+  "journal"
+ ]
+}

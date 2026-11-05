@@ -1,0 +1,98 @@
+{
+ "name": "classic",
+ "he": "קלאסי",
+ "en": "Classic",
+ "n": 3,
+ "describe": "Ivory, photos in white mats with a fine gold line, a serif title over a double rule.",
+ "describe_he": "שמנת, תמונות בפספרטו לבן עם קו זהב דק, כותרת סריף מעל קו כפול.",
+ "palette": "sand",
+ "paper": "#F5F0E6",
+ "palettes": [
+  "sand",
+  "neutral",
+  "night",
+  "photos"
+ ],
+ "fonts": {
+  "display": {
+   "family": "Frank Ruhl Libre",
+   "file": "FrankRuhlLibre-Medium.ttf",
+   "weights": "500"
+  },
+  "text": {
+   "family": "David Libre",
+   "file": "DavidLibre-Medium.ttf",
+   "weights": "500"
+  }
+ },
+ "display_classes": [
+  "hero",
+  "h1",
+  "h2"
+ ],
+ "text_classes": [
+  "label",
+  "deck",
+  "folio"
+ ],
+ "type": {
+  "hero": [
+   500,
+   40
+  ],
+  "h1": [
+   500,
+   26
+  ],
+  "h2": [
+   500,
+   26
+  ],
+  "deck": [
+   500,
+   10
+  ],
+  "story": [
+   300,
+   11
+  ],
+  "label": [
+   500,
+   10
+  ],
+  "folio": [
+   500,
+   9
+  ]
+ },
+ "label_spacing": ".06em",
+ "keyline": "#B9A888",
+ "margin": {
+  "outer": 20,
+  "spine": 22,
+  "top": 20
+ },
+ "gap": 16,
+ "grade": {
+  "neutralize": 0.4,
+  "contrast": 1.04,
+  "saturation": 1.0,
+  "warmth": 0.01
+ },
+ "frame": "mat",
+ "edge": false,
+ "edge_share": 0,
+ "opener_spreads": false,
+ "quiet_scale": 0.74,
+ "cover": "centred",
+ "title_align": "center",
+ "title_deco": "rule2",
+ "ornaments": [],
+ "illustrations": false,
+ "deck": "dots",
+ "running_heads": false,
+ "structures": [
+  "album",
+  "journal"
+ ]
+}

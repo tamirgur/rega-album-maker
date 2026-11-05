@@ -1,0 +1,89 @@
+{
+ "name": "newspaper",
+ "he": "עיתון",
+ "en": "Newspaper",
+ "n": 9,
+ "describe": "Photos to the edge, a heavy serif headline, a kicker over a thin rule, a narrow column.",
+ "describe_he": "תמונות עד הקצה, כותרת סריף כבדה, שורת פתיח מעל קו דק, טור צר.",
+ "palette": "neutral",
+ "paper": "#F7F5F1",
+ "palettes": [
+  "neutral",
+  "sand",
+  "mist",
+  "night",
+  "photos"
+ ],
+ "fonts": {
+  "display": {
+   "family": "Noto Serif Hebrew",
+   "file": "NotoSerifHebrew-Bold.ttf",
+   "weights": "700"
+  }
+ },
+ "display_classes": [
+  "hero",
+  "h1",
+  "h2"
+ ],
+ "type": {
+  "hero": [
+   700,
+   48
+  ],
+  "h1": [
+   700,
+   34
+  ],
+  "h2": [
+   700,
+   34
+  ],
+  "deck": [
+   400,
+   10
+  ],
+  "story": [
+   300,
+   11
+  ],
+  "label": [
+   400,
+   9.5
+  ],
+  "folio": [
+   400,
+   9
+  ]
+ },
+ "label_spacing": ".1em",
+ "margin": {
+  "outer": 16,
+  "spine": 18,
+  "top": 16
+ },
+ "gap": 5,
+ "grade": {
+  "neutralize": 0.4,
+  "contrast": 1.06,
+  "saturation": 1.0,
+  "warmth": 0.01
+ },
+ "frame": "none",
+ "edge": true,
+ "edge_share": 0.5,
+ "opener_spreads": false,
+ "quiet_scale": 0.76,
+ "cover": "headline",
+ "title_deco": "kicker",
+ "ornaments": [],
+ "illustrations": false,
+ "text_classes": [],
+ "deck": "dots",
+ "running_heads": false,
+ "structures": [
+  "album",
+  "journal",
+  "magazine"
+ ]
+}
