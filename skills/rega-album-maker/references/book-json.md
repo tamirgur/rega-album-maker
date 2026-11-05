@@ -71,7 +71,8 @@
 | `cover` | The cover photo. It fills the top of the cover when a crop is safe; otherwise it is shown whole. |
 | `closing` | The photo on the last page. Without one, the last photo of the last chapter closes the book. |
 | `no_people` | Photos with nobody in them: they may be cropped to fill a frame. Never a document. |
-| `pass` | Optional: a boarding pass on the route page (`from`, `via`, `to`, `date`). |
+| `pass` | Optional: a boarding pass on the route page (`from`, `via`, `to`, `date`). Left out when there is a `journey`: its legend says the same. |
+| `journey` | The trip as the user told it, for the route page: `{"stops": [{"name", "lat", "lon", "home": true?, "main": true?}], "legs": [{"from": "<stop name>", "to": "<stop name>", "by": "flight" \| "train" \| "car" \| "bus" \| "ferry" \| "walk"}]}`. From the facts the user gave (tickets, bookings, "we drove"), never guessed. Stops are towns, stations or airports with their public coordinates; home is the city or its airport, never an address. `main` marks the destination (otherwise the stop with the most legs). The map shows the whole journey, each leg drawn by how it was travelled, with a legend; without a `journey`, the map is drawn from the photos' GPS. Legend words in other languages: `"journey_words": {"flight": "...", ...}`. |
 | `chapters[].title` | 1–3 words. It opens the chapter: on the photo, in a band or a column beside it, or above the first photos. |
 | `chapters[].photos` | The ids in story order. |
 | `chapters[].highlights` | The best frame of each key moment, or of a moment the user named: a page of its own, to the edge when it can be. The first one may open the chapter across a spread. |

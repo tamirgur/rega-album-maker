@@ -3,6 +3,23 @@
 All notable changes to Rega – AI Album Maker. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] - 2026-11-05
+
+From a real trip book (a visit to Florence), where the second version came out much better than the first.
+
+### Added
+- **The journey map.** The route page can show the trip as the user told it (`journey` in `selection.json`): every
+  stop named, the whole way from home with the destination marked, each leg drawn by how it was travelled (a flight
+  as an arc, a train as a line, a drive as dots) and a small legend. It is drawn on the page in the book's colours,
+  never tone-graded like a photo, and needs no GPS. The boarding pass is left out when the legend tells the same.
+- A design rule: a story sentence never runs into a photo.
+
+### Fixed
+- On a page full of photos, the story sentence now gets its own room under the photos; before, a tall photo could
+  run into it.
+- A journal no longer prints an hour taken from a WhatsApp photo (the day it was received) or a file date: those
+  photos simply get no hour, and can stay in the book.
+
 ## [1.0.0] - 2026-11-05
 
 **Beta: the first public version.** Feedback is welcome:

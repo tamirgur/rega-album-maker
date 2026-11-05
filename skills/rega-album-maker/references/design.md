@@ -103,7 +103,10 @@ the user told you (names, a flight number, the venue), or from what the photos s
 fact, no element. Never a made-up flight number, never a placeholder.
 
 The elements built in (`selection.json`, see `book-json.md`):
-- **Route map** (page 1 of a trip with GPS) and a **boarding pass** on it (`pass`).
+- **Route map** (page 1 of a trip). With a `journey` (the stops and how each leg was travelled, from the user's
+  facts), it shows the whole trip from home, the destination marked, a flight as an arc, a train as a line, a drive
+  as dots, and a legend: write one whenever the user told how they got there. Without it, the map follows the
+  photos' GPS, and a **boarding pass** (`pass`) can sit under it.
 - **Illustration** (`illustration`): from `assets/illustrations.json`, for something that really happened in the
   chapter.
 - **Day badge**: automatic in a journal of a trip (`badges`).

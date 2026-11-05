@@ -27,7 +27,7 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import ASSETS, font_path, find_browser, load, save  # noqa: E402
-from maps import route_svg  # noqa: E402
+from maps import journey_svg, route_svg  # noqa: E402
 
 E = html.escape
 
@@ -307,6 +307,9 @@ class Ctx:
 
     def item(self, it):
         b = self.b
+        if it['type'] == 'route' and it.get('journey'):   # the journey as told: drawn on the page, never graded
+            return (f'<div class="abs map" style="left:{self.mm(it["x"] + b)};top:{self.mm(it["y"] + b)};width:{self.mm(it["w"])};'
+                    f'height:{self.mm(it["h"])}">{journey_svg(it["journey"], it["w"], it["h"], it.get("words") or {})}</div>')
         if it['type'] == 'route':
             tracks = {int(n): t for n, t in self.book['tracks'].items()}
             return (f'<div class="abs map" style="left:{self.mm(it["x"] + b)};top:{self.mm(it["y"] + b)};width:{self.mm(it["w"])};'
@@ -396,6 +399,12 @@ body{{font-family:Assistant,sans-serif;color:{c["ink"]}}}
 .link{{stroke:#8c8379;opacity:.55;stroke-linecap:round}}
 .dot{{fill:{c["accent"]}}} .dot.dim{{fill:#d3c9bc}}
 .lbl{{fill:{c["ink"]};font-family:Assistant,sans-serif;font-weight:600}}
+.jsea{{fill:color-mix(in srgb,#fff 62%,{c.get("paper", "#fff")})}} .jland{{fill:color-mix(in srgb,{c["ink"]} 13%,{c.get("paper", "#fff")})}}
+.jleg{{fill:none;stroke:{c["accent"]};stroke-linecap:round;stroke-linejoin:round}}
+.jdot{{fill:{c["ink"]}}} .jmain{{fill:{c["accent"]};stroke:{c.get("paper", "#fff")}}}
+.jlbl{{fill:{c["ink"]};font-family:Assistant,sans-serif;font-weight:400}}
+.jmainlbl{{font-weight:600}}
+.jlg{{fill:{label_col};font-family:Assistant,sans-serif;font-weight:300}}
 .ill{{fill:none}}
 .pass{{display:flex;align-items:center;justify-content:center;gap:{6 * u:.2f}mm;border:.3mm dashed #d3c9bc;border-radius:2.5mm;direction:ltr}}
 .pass div{{display:flex;flex-direction:column;align-items:center}}

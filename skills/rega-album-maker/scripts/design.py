@@ -84,6 +84,8 @@ class Photo:
         self.faces = faces if len(rec.get('faces', [])) <= 6 else self.main
         self.marked_no_people = rec['id'] in no_people
         self.taken = rec['taken']
+        # a real clock time: not the day a WhatsApp photo was received, not a file's date
+        self.clock = rec.get('date_source') not in ('whatsapp', 'file_time')
 
     @property
     def crop_ok(self):
@@ -262,6 +264,11 @@ class Designer:
         size = self.c['type'][cls][1] * self.s
         return size * 0.3528 * (1.05 if size > 15 else 1.45)
 
+    def lines_of(self, cls, text, w):
+        """About how many lines a text takes in a column w mm wide (a little more rather than less)."""
+        size = self.c['type'][cls][1] * self.s * 0.3528
+        return max(1, math.ceil(len(text or '') * size * 0.52 / max(w, 1)))
+
     def head_h(self):
         """The room a chapter title and its tag take above the photos."""
         return self.pt('h2') + 3 * self.s + self.pt('label') + (6 + self.c.get('head_extra', 0)) * self.s
@@ -373,7 +380,7 @@ class Designer:
             self.text(pg, 'label', photos[0].taken[11:16], ox, ty, w, align)
         return pg
 
-    def fill(self, side, photos, head=None, running=None, qr=None, illustration=None):
+    def fill(self, side, photos, head=None, running=None, qr=None, illustration=None, story=None):
         if self.c.get('scene') and not qr:
             return self.scene(side, photos, head, illustration)
         pg = self.page('fill', side)
@@ -383,7 +390,9 @@ class Designer:
             top = self.head_h()
         elif running:
             self.text(pg, 'label', running, self.area(side)[0], max(3 * self.s, self.mt - 7.5 * self.s), self.area(side)[2])
-        bottom = 30 * self.s if qr else 0
+        # the story sentence gets its own room under the photos, so a photo never runs into it
+        story_h = self.lines_of('story', story, self.area(side)[2]) * self.pt('story') if story else 0
+        bottom = (30 * self.s if qr else 0) + (story_h + 6 * self.s if story else 0)
         x0, y0, bw, bh = self.area(side, top, bottom)
         lay = fill_layout(photos, bw, bh, self.g)
         if lay is None:  # too many for this page: put them in a row, smaller
@@ -397,6 +406,10 @@ class Designer:
                 t['y'] = round(t['y'] + shift, 2)
         for p, x, y, rw, rh in rects:
             self.frame(pg, p, [ox + x, oy + y, rw, rh])
+        if story:
+            pg['texts'].append({'cls': 'story', 'text': story, 'x': x0, 'y': round(oy + h + 5 * self.s, 2), 'w': bw,
+                                'align': 'right' if self.rtl else 'left', 'color': None})
+            pg['story_placed'] = True
         if qr:
             self.qr(pg, qr)
         return pg
@@ -1118,12 +1131,13 @@ def draw(d, s, n):
     else:
         running = None if s.get('head') or not d.c.get('running_heads', True) else s.get('chapter')
         if running and d.c.get('times'):   # a journal: the hours of this page's photos
-            ts = sorted(p.taken[11:16] for p in s['photos'] if p.taken and len(p.taken) >= 16)
+            ts = sorted(p.taken[11:16] for p in s['photos'] if p.taken and len(p.taken) >= 16 and p.clock)
             if ts:
                 running += f' · {ts[0]}' + (f'–{ts[-1]}' if ts[-1] != ts[0] else '')
         pages = [d.fill(side, s['photos'], head=s.get('head'), running=running,
-                        qr=s.get('qr'), illustration=s.get('illustration') if s.get('head') else None)]
-        if s.get('story'):
+                        qr=s.get('qr'), illustration=s.get('illustration') if s.get('head') else None,
+                        story=s.get('story'))]
+        if s.get('story') and not pages[0].pop('story_placed', False):   # a scene places its own words
             pg = pages[0]
             pg['texts'].append({'cls': 'story', 'text': s['story'], 'x': d.area(side)[0], 'y': d.H - d.mt - 12 * d.s,
                                 'w': d.area(side)[2], 'align': 'right' if d.rtl else 'left', 'color': None})
@@ -1221,6 +1235,21 @@ def check(d, pages, photos_by_id, goal=None, chapters=()):
             loose.append(p['n'])
     out.append(('the photos fill the page', not thin, f'pages {thin}' if thin else ''))
     out.append(('words sit by their photos', not loose, f'pages {loose}' if loose else ''))
+    crossed = []
+    for p in inner:   # a story sentence, with all its lines, clear of every photo and its frame
+        fb = []
+        for f in p['frames']:
+            l_, t_, r_, b_ = (v * d.s for v in SKINS.get(f.get('skin') or 'none', SKINS['none']))
+            x, y, w, h = f['clip']
+            fb.append((x - l_, y - t_, w + l_ + r_, h + t_ + b_))
+        for t in p['texts']:
+            if t['cls'] != 'story':
+                continue
+            th = d.lines_of('story', t['text'], t['w']) * d.pt('story')
+            tb = (t['x'], t['y'] - th if t.get('anchor') == 'bottom' else t['y'], t['w'], th)
+            if any(overlap(tb, b) for b in fb):
+                crossed.append(p['n'])
+    out.append(('a sentence never runs into a photo', not crossed, f'pages {sorted(set(crossed))}' if crossed else ''))
     opened = {p['chapter'] for p in inner if p.get('opens')}
     missing = [c['title'] for c in chapters if c.get('title') and c['title'] not in opened]
     out.append(('every chapter opens with its title', not missing, ', '.join(missing)))

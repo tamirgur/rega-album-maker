@@ -125,6 +125,21 @@ def main():
             book(work, folder, lang, style, structure, 12, 'Test')
             b = build(work, f'{lang}/{style}')
             check(b['dir'] == ('rtl' if lang == 'he' else 'ltr'), f'{lang}: direction {b["dir"]}')
+        print('journey')   # the route page from the journey the user told: a flight and a train, with a legend
+        work = os.path.join(tmp, 'book-0')
+        sel = load(os.path.join(work, 'selection.json'))
+        sel['journey'] = {'stops': [{'name': 'תל אביב', 'lat': 32.01, 'lon': 34.89, 'home': True},
+                                    {'name': 'רומא', 'lat': 41.9, 'lon': 12.5},
+                                    {'name': 'פירנצה', 'lat': 43.77, 'lon': 11.25, 'main': True}],
+                          'legs': [{'from': 'תל אביב', 'to': 'רומא', 'by': 'flight'},
+                                   {'from': 'רומא', 'to': 'פירנצה', 'by': 'train'}]}
+        save(os.path.join(work, 'selection.json'), sel)
+        b = build(work, 'journey')
+        route = [i for p in b['pages'] for i in p.get('items', []) if i['type'] == 'route']
+        check(bool(route) and bool(route[0].get('journey')), 'journey: the route page has no journey')
+        with open(os.path.join(work, 'book.html'), encoding='utf-8') as f:
+            html = f.read()
+        check('class="jleg"' in html and 'טיסה' in html and 'רכבת' in html, 'journey: the map or its legend is missing')
         work = os.path.join(tmp, 'styles')
         book(work, party, 'en', styles[0], 'album', 8, 'Styles')
         for s in styles:

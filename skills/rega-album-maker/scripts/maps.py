@@ -100,6 +100,172 @@ def main_region(pts):
     return keep if sum(keep) >= max(2, len(pts) // 2) else [True] * len(pts)
 
 
+MODES = ('flight', 'train', 'car', 'bus', 'ferry', 'walk')
+
+
+def journey_parts(journey):
+    """The stops and the legs of a journey from selection.json, checked. Returns (stops, legs, problems)."""
+    stops, problems = [], []
+    for s in journey.get('stops') or []:
+        try:
+            stops.append({'name': str(s['name']).strip(), 'lat': float(s['lat']), 'lon': float(s['lon']),
+                          'home': bool(s.get('home')), 'main': bool(s.get('main'))})
+        except (KeyError, TypeError, ValueError):
+            problems.append(f'journey: a stop needs a name, lat and lon: {s}')
+    index = {s['name'].casefold(): i for i, s in enumerate(stops)}
+
+    def find(x):
+        if isinstance(x, int) and 0 <= x < len(stops):
+            return x
+        return index.get(str(x).strip().casefold())
+    legs = []
+    for leg in journey.get('legs') or []:
+        a, b, by = find(leg.get('from')), find(leg.get('to')), leg.get('by')
+        if a is None or b is None or a == b:
+            problems.append(f'journey: a leg must go from one stop to another, by name: {leg}')
+        elif by not in MODES:
+            problems.append(f'journey: "by" is one of {", ".join(MODES)}: {leg}')
+        else:
+            legs.append((a, b, by))
+    if len(stops) < 2:
+        problems.append('journey: at least two stops')
+    if stops and not any(s['main'] for s in stops):   # the destination: the stop that is not home with most legs
+        cand = [i for i, s in enumerate(stops) if not s['home']] or [0]
+        stops[max(cand, key=lambda i: sum(i in (a, b) for a, b, _ in legs))]['main'] = True
+    return stops, legs, problems
+
+
+def journey_svg(journey, w, h, words, min_span_km=60):
+    """The whole journey, from home to the destination, as told in the story: each stop named, each leg drawn by how
+    it was travelled (a flight as an arc, a train as a line, a drive as dots), with a small legend.
+
+    journey: {"stops": [{"name", "lat", "lon", "home"?, "main"?}], "legs": [{"from", "to", "by"}]};
+    words: the legend's words by mode. Returns an <svg> w x h mm, coloured by the book's CSS."""
+    stops, legs, _ = journey_parts(journey)
+    if len(stops) < 2:
+        return ''
+    lat0 = sum(s['lat'] for s in stops) / len(stops)
+    k = math.cos(math.radians(lat0))
+    xs, ys = [s['lon'] * k for s in stops], [-s['lat'] for s in stops]
+    span = min_span_km / 111.0
+    bw, bh = max(max(xs) - min(xs), span), max(max(ys) - min(ys), span)
+    bw, bh = bw * 1.3 + span * 0.6, bh * 1.3 + span * 0.6   # room for the names around the edge
+    legend_h = 0.09   # the bottom strip of the map keeps the legend clear of the route
+    if bw / bh < w / (h * (1 - legend_h)):
+        bw = bh * w / (h * (1 - legend_h))
+    else:
+        bh = bw * h * (1 - legend_h) / w
+    cx, cy = (min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2
+    vx0, vy0 = cx - bw / 2, cy - bh / 2
+    s_ = w / bw
+    vy1 = vy0 + h / s_
+    vx1 = vx0 + bw
+
+    def T(lat, lon):
+        return (lon * k - vx0) * s_, (-lat - vy0) * s_
+
+    out = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w:.2f} {h:.2f}" preserveAspectRatio="xMidYMid meet">',
+           f'<rect class="jsea" width="{w:.2f}" height="{h:.2f}"/>']
+    parts = []
+    lon0, lon1, lat_lo, lat_hi = vx0 / k, vx1 / k, -vy1, -vy0
+    for bx0, by0, bx1, by1, ring in land_rings():
+        if bx1 < lon0 or bx0 > lon1 or by1 < lat_lo or by0 > lat_hi:
+            continue
+        poly = _clip([(x * k, -y) for x, y in ring], vx0, vy0, vx1, vy1)
+        if len(poly) >= 3:
+            parts.append('M' + 'L'.join('%.2f,%.2f' % ((x - vx0) * s_, (y - vy0) * s_) for x, y in poly) + 'Z')
+    if parts:
+        out.append('<path class="jland" d="' + ''.join(parts) + '"/>')
+
+    sw = max(0.45, w / 190)
+    style = {'flight': f'stroke-width="{sw * 0.9:.2f}" stroke-dasharray="{sw * 3:.2f} {sw * 2.3:.2f}"',
+             'train': f'stroke-width="{sw * 1.15:.2f}"',
+             'car': f'stroke-width="{sw * 1.1:.2f}" stroke-dasharray="0.01 {sw * 2.2:.2f}"',
+             'bus': f'stroke-width="{sw * 1.1:.2f}" stroke-dasharray="0.01 {sw * 2.2:.2f}"',
+             'ferry': f'stroke-width="{sw * 0.9:.2f}" stroke-dasharray="{sw * 1.2:.2f} {sw * 1.6:.2f}"',
+             'walk': f'stroke-width="{sw * 0.8:.2f}" stroke-dasharray="0.01 {sw * 1.6:.2f}"'}
+    bow = {'flight': 0.2, 'car': 0.14, 'bus': 0.14, 'ferry': 0.1, 'walk': 0.1, 'train': 0}
+    drawn = set()
+    for a, b, by in legs:
+        key = (min(a, b), max(a, b), by)   # there and back the same way: one line
+        if key in drawn:
+            continue
+        drawn.add(key)
+        (x0, y0), (x1, y1) = T(stops[a]['lat'], stops[a]['lon']), T(stops[b]['lat'], stops[b]['lon'])
+        L = math.hypot(x1 - x0, y1 - y0) or 1
+        if bow[by]:   # a curve, bowing up (north), so a drive beside a train line stays visible
+            nx, ny = (y1 - y0) / L, -(x1 - x0) / L
+            if ny > 0:
+                nx, ny = -nx, -ny
+            qx, qy = (x0 + x1) / 2 + nx * bow[by] * L, (y0 + y1) / 2 + ny * bow[by] * L
+            d = f'M{x0:.2f},{y0:.2f} Q{qx:.2f},{qy:.2f} {x1:.2f},{y1:.2f}'
+        else:
+            d = f'M{x0:.2f},{y0:.2f} L{x1:.2f},{y1:.2f}'
+        out.append(f'<path class="jleg" d="{d}" {style[by]}/>')
+
+    fs = max(2.6, w / 44)
+    boxes = []   # what is already on the map: dots and names, so a name never lands on another
+    pts = []
+    for i, st in enumerate(stops):
+        x, y = T(st['lat'], st['lon'])
+        r = sw * (3.4 if st['main'] else 2.0)
+        pts.append((x, y, r))
+        boxes.append((x - r, y - r, 2 * r, 2 * r))
+    for i, st in enumerate(stops):
+        x, y, r = pts[i]
+        cls = 'jdot jmain' if st['main'] else 'jdot'
+        extra = f' stroke-width="{sw * 1.1:.2f}"' if st['main'] else ''
+        out.append(f'<circle class="{cls}" cx="{x:.2f}" cy="{y:.2f}" r="{r:.2f}"{extra}/>')
+    order = sorted(range(len(stops)), key=lambda i: not stops[i]['main'])   # the destination's name first
+
+    def clear(b):
+        return (0 <= b[0] and b[0] + b[2] <= w and 0 <= b[1] and b[1] + b[3] <= h * (1 - legend_h) and
+                all(b[0] + b[2] < o[0] or o[0] + o[2] < b[0] or b[1] + b[3] < o[1] or o[1] + o[3] < b[1] for o in boxes))
+    for i in order:
+        st, (x, y, r) = stops[i], pts[i]
+        f = fs * (1.35 if st['main'] else 1.0)
+        tw = len(st['name']) * f * 0.55
+        cands = [(x - r - 1.2 - tw / 2, y + f * 0.35), (x + r + 1.2 + tw / 2, y + f * 0.35),   # beside
+                 (x, y + r + f * 1.05), (x, y - r - f * 0.45)]                                  # below, above
+        for tx, ty in cands:
+            b = (tx - tw / 2, ty - f * 0.85, tw, f * 1.05)
+            if clear(b):
+                break
+        else:
+            tx, ty = cands[0]
+            b = (tx - tw / 2, ty - f * 0.85, tw, f * 1.05)
+        boxes.append(b)
+        out.append(f'<text class="jlbl{" jmainlbl" if st["main"] else ""}" x="{tx:.2f}" y="{ty:.2f}" '
+                   f'font-size="{f:.2f}" text-anchor="middle">{_esc(st["name"])}</text>')
+
+    used = [m for m in MODES if any(by == m for _, _, by in legs)]
+    if used:   # the legend: a sample of each line, and its word
+        lf, sample, gap = fs * 0.78, fs * 2.2, fs * 0.6
+        rtl = any('֐' <= ch <= 'ࣿ' for m in used for ch in words.get(m, ''))
+        y = h - lf * 0.9
+        cur = w - fs * 0.8 if rtl else fs * 0.8
+        for m in used:   # words centred on their own box: right-to-left text flips "start" and "end"
+            word = words.get(m, m)
+            tw = len(word) * lf * 0.6
+            if rtl:   # from the right: the word, then its line to the left of it
+                out.append(f'<text class="jlg" x="{cur - tw / 2:.2f}" y="{y:.2f}" font-size="{lf:.2f}" '
+                           f'text-anchor="middle">{_esc(word)}</text>')
+                x1 = cur - tw - gap
+                out.append(f'<path class="jleg" d="M{x1 - sample:.2f},{y - lf * 0.32:.2f} L{x1:.2f},{y - lf * 0.32:.2f}" {style[m]}/>')
+                cur = x1 - sample - fs * 1.4
+            else:
+                out.append(f'<path class="jleg" d="M{cur:.2f},{y - lf * 0.32:.2f} L{cur + sample:.2f},{y - lf * 0.32:.2f}" {style[m]}/>')
+                out.append(f'<text class="jlg" x="{cur + sample + gap + tw / 2:.2f}" y="{y:.2f}" font-size="{lf:.2f}" '
+                           f'text-anchor="middle">{_esc(word)}</text>')
+                cur += sample + gap + tw + fs * 1.4
+    out.append('</svg>')
+    return ''.join(out)
+
+
+def _esc(s):
+    return str(s).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
+
 def route_svg(tracks, w, h, highlight=None, labels=False, min_span_km=40, places=()):
     """tracks: {day number: [[lat, lon], ...]}; highlight: the day numbers to show strong. Returns an <svg> w x h mm.
 

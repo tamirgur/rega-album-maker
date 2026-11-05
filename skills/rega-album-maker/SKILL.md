@@ -5,7 +5,7 @@ license: MIT (see LICENSE). Bundled fonts under the SIL Open Font License; detai
 compatibility: Runs scripts locally. Needs Python 3.9+ with the packages in requirements.txt and Chrome, Edge or Chromium for the PDF. Optional OpenCV (faces) and ffmpeg (video clips). Network only for optional place names (OpenStreetMap) and a version check (GitHub). Made for Claude Code and Cowork; any agent that runs skill scripts can use it.
 metadata:
   author: Tamir Gur
-  version: "1.0.0"
+  version: "1.0.1"
   repository: https://github.com/tamirgur/rega-album-maker
 ---
 
@@ -228,7 +228,9 @@ placeholders: say so.
    palettes listed in the style's file, "from the photos" among them. A brand gives its accent colour and a logo.
 4. **Elements:** propose, per chapter, the elements the facts allow (the bank is in `references/design.md`): a route
    map, a boarding pass, an illustration of something that happened, a callout to a real detail. For each, say what
-   fact it needs. If the user doesn't have the fact, the element is left out.
+   fact it needs. If the user doesn't have the fact, the element is left out. For a trip, the route map is best as
+   the whole journey: ask how they got there and moved around (flight, train, car), then write `journey` in
+   `selection.json` (`references/book-json.md`).
 
 Write `design`: `{"structure": "album", "style": "nordic", "palette": "style", "elements": {...}, "logo": null}`.
 

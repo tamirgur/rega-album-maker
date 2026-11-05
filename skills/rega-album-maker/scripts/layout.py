@@ -273,22 +273,33 @@ def main():
         days = sorted({byid[i]['day'] for i in photos if byid[i].get('day')})
         subtitle = fmt_range(date.fromisoformat(days[0]), date.fromisoformat(days[-1]), lang) if days else ''
     tracks = {str(x['n']): x['track'] for x in groups['days'] if x['track']}
-    first = d.page('route' if groups.get('has_gps') and els.get('route_map', True) and len(tracks) > 1 else 'title', d.side(1))
+    journey = sel.get('journey') if els.get('route_map', True) else None
+    if journey:   # the journey as the user told it (stops and how they travelled), not the photos' GPS
+        from maps import journey_parts
+        stops_, legs_, jp = journey_parts(journey)
+        problems += jp
+        if len(stops_) < 2:
+            journey = None
+    first = d.page('route' if journey or (groups.get('has_gps') and els.get('route_map', True) and len(tracks) > 1)
+                   else 'title', d.side(1))
     x0, y0, bw, bh = d.area(first['side'])
     if first['tpl'] == 'route':
         from maps import main_region
         allp = [p for x in groups['days'] for p in x['places']]
         keep = main_region([(p['lat'], p['lon']) for p in allp])
         names = {(p.get('name') or f'{p["lat"]:.2f},{p["lon"]:.2f}').casefold() for p, k in zip(allp, keep) if k}
-        nplaces = len(names)
+        nplaces = len([s for s in stops_ if not s['home']]) if journey else len(names)
         stats = ' · '.join([t['days'].format(n=len(groups['days'])) if len(groups['days']) > 1 else t['one_day'],
                             t['places'].format(n=nplaces) if nplaces > 1 else t['one_place']])
         d.text(first, 'h2', sel.get('route_title', t['route']), x0, y0, bw)
         d.text(first, 'label', stats, x0, y0 + 10 * d.s, bw)
-        ph_ = 26 * d.s if sel.get('pass') else 0
+        ph_ = 26 * d.s if sel.get('pass') and not journey else 0   # the journey's legend tells what a pass would
         first['items'].append({'type': 'route', 'x': x0, 'y': y0 + 20 * d.s, 'w': bw, 'h': bh - 20 * d.s - (ph_ + 4 * d.s if ph_ else 0),
                                'places': [{'lat': p['lat'], 'lon': p['lon'], 'name': p.get('name')}
                                           for x in groups['days'] for p in sorted(x['places'], key=lambda p: -p['count'])]})
+        if journey:
+            first['items'][-1].update(journey=journey, words=dict(t.get('modes') or words('en')['modes'],
+                                                                  **(sel.get('journey_words') or {})))
         if ph_:
             first['items'].append({'type': 'pass', 'x': x0, 'y': y0 + bh - ph_, 'w': bw, 'h': ph_, 'pass': sel['pass']})
     else:
