@@ -106,7 +106,7 @@ def faces_mm(ph, img, main=False):
     return [(ix + f[0] * iw, iy + f[1] * ih, f[2] * iw, f[3] * ih) for f in (ph.main if main else ph.faces)]
 
 
-def crop_safe(ph, clip, img):
+def crop_safe(ph, clip, img, feet=True):
     """No face cut by the frame (2 mm to spare), and no feet: with a whole body in the photo, almost nothing off the bottom."""
     if ph.marked_no_people:
         return True
@@ -118,18 +118,18 @@ def crop_safe(ph, clip, img):
             return False
     # the feet: protected only when a whole body is in the photo (a face small enough, high enough, to have feet
     # below it); a seated or half-length photo may lose its bottom
-    feet = any(f[1] + 8 * f[3] <= 1.02 for f in ph.faces)
+    feet = feet and any(f[1] + 8 * f[3] <= 1.02 for f in ph.faces)
     return not feet or (img[1] + img[3]) - (y + h) <= 0.04 * img[3] + 0.01
 
 
-def best_focus(ph, clip, extra=None):
+def best_focus(ph, clip, extra=None, feet=True):
     """The safe crop nearest the middle (a little above it), or None when no crop is safe."""
     best = None
     for fx in range(0, 101, 10):
         for fy in range(0, 101, 10):
             f = (fx / 100, fy / 100)
             img = cover_img(ph, clip, f)
-            if not crop_safe(ph, clip, img) or (extra and not extra(f, img)):
+            if not crop_safe(ph, clip, img, feet) or (extra and not extra(f, img)):
                 continue
             d = abs(fx - 50) + abs(fy - 45)
             if best is None or d < best[0]:
@@ -242,6 +242,53 @@ def fill_layout(ps, bw, bh, g):
     return best[1:] if best else None
 
 
+# ---------------------------------------------------------------- full screen: the page tiled edge to edge
+
+def _fs_lines(items, L, g):
+    """Justified lines: each line of photos fills the length L exactly in its own shapes; returns each line's
+    thickness. items is a list of lines, each a list of aspect ratios measured along L (w/h for rows)."""
+    return [(L - g * (len(line) - 1)) / sum(line) for line in items]
+
+
+def _compositions(n, most):
+    """The ways to cut n items in order into 1..most lines."""
+    for cuts in itertools.product((0, 1), repeat=n - 1):
+        k = sum(cuts) + 1
+        if k > most:
+            continue
+        out, start = [], 0
+        for i, c in enumerate(cuts, 1):
+            if c:
+                out.append((start, i))
+                start = i
+        out.append((start, n))
+        yield out
+
+
+def fullscreen_layouts(items, bw, bh, g, most_lines=3):
+    """Every rows-or-columns arrangement of the items (photos and an optional title tile) that tiles the whole
+    box. A line of photos keeps their shapes along its length; the lines are then stretched to fill the box, so
+    every tile is cropped by the same factor. Yields (crop, rects) with rects [(item, x, y, w, h)]."""
+    n = len(items)
+    for perm in itertools.permutations(range(n)):
+        for comp in _compositions(n, most_lines):
+            for rows in (True, False):
+                L, T = (bw, bh) if rows else (bh, bw)
+                lines = [[(items[perm[i]]['a'] if rows else 1 / items[perm[i]]['a']) for i in range(a, b)] for a, b in comp]
+                th = _fs_lines(lines, L, g)
+                nat = sum(th) + g * (len(th) - 1)
+                k = (T - g * (len(th) - 1)) / (nat - g * (len(th) - 1))
+                rects, pos = [], 0.0
+                for (a, b), t, line in zip(comp, th, lines):
+                    t2, along = t * k, 0.0
+                    for i, ar in zip(range(a, b), line):
+                        ln = ar * t
+                        rects.append((items[perm[i]], along, pos, ln, t2) if rows else (items[perm[i]], pos, along, t2, ln))
+                        along += ln + g
+                    pos += t2 + g
+                yield abs(math.log(k)), rects
+
+
 # ---------------------------------------------------------------- pages
 
 class Designer:
@@ -329,6 +376,9 @@ class Designer:
         f = {'id': ph.id, 'clip': [round(v, 2) for v in clip], 'img': [round(v, 2) for v in img],
              'focus': list(focus) if focus else None, 'cropped': cropped, 'shadow': shadow,
              'skin': sk if sk != 'none' else None}
+        if self.c.get('stickers') and ph.known:   # where the people are, so a sticker keeps off them
+            f['faces'] = [[round(v, 1) for v in (x - 0.6 * w, y - 0.3 * h, w * 2.2, h * 6)]
+                          for x, y, w, h in faces_mm(ph, img)]
         f.update(extra)
         pg['frames'].append(f)
         return img
@@ -346,6 +396,129 @@ class Designer:
         w = 20 * self.s
         self.text(pg, 'folio', str(n), self.outer_x(pg['side'], w), self.H - 9 * self.s, w,
                   align='right' if pg['side'] == 'r' else 'left')
+
+    # ---- full screen
+    def full(self, side, photos, head=None, story=None, big=(), cover=False):
+        """The page covered by photos edge to edge, thin lines between them, each photo cropped to its tile
+        where no face is cut (and no face sits in the trim or by the fold). A chapter's first page gives one tile
+        to its title. Returns None when no arrangement is safe; the caller falls back to an ordinary page."""
+        s, W, H, g = self.s, self.W, self.H, self.g
+        m = self.c.get('full_margin', 0) * s
+        bw, bh = W - 2 * m, H - 2 * m
+        trim, fold = self.c.get('full_trim', 5) * s, self.c.get('full_fold', 8)
+        items = [{'p': p, 'a': p.a} for p in photos]
+        title_w = 0
+        if head:
+            title_w = self.text_w(head[0], 'hero' if cover else 'h2') + 16 * s
+            items.append({'p': None, 'a': None})
+        spine_x = 0 if side == 'r' else W
+        keep = self.c.get('full_text_safe', 12) * s   # words stay this far from the trimmed edge
+
+        def safe(x, y, w, h):   # the part of a tile where words may go
+            x0, y0 = max(m + x, keep), max(m + y, keep)
+            return x0, y0, min(m + x + w, W - keep) - x0, min(m + y + h, H - keep) - y0
+
+        def safe_extra(clip):
+            def ok(f, img):
+                for fx, fy, fw, fh in faces_mm(ph_now[0], img):
+                    if fx < trim or fy < trim or fx + fw > W - trim or fy + fh > H - trim:
+                        return False
+                    if abs(fx - spine_x) < fold or abs(fx + fw - spine_x) < fold:
+                        return False
+                return True
+            return ok
+        ph_now = [None]
+        cache = {}
+
+        def focus_for(p, clip):
+            key = (p.id, round(clip[0]), round(clip[1]), round(clip[2]), round(clip[3]))
+            if key not in cache:
+                ph_now[0] = p
+                if not p.crop_ok:   # faces unknown: only a tile in the photo's own shape
+                    cache[key] = (0.5, 0.5) if abs(math.log((clip[2] / clip[3]) / p.a)) < 0.01 else None
+                else:
+                    cache[key] = best_focus(p, clip, safe_extra(clip), feet=self.c.get('full_keep_feet', True))
+            return cache[key]
+
+        best = []
+        aspects = (1.0, 1.5, 0.75, 2.2) if head else (None,)
+        n = len(items)
+        for ta in aspects:
+            if head:
+                items[-1]['a'] = ta
+            for crop, rects in fullscreen_layouts(items, bw, bh, g):
+                if crop > 0.75:
+                    continue
+                areas = [r[3] * r[4] for r in rects]
+                small = min(min(r[3], r[4]) for r in rects)
+                if small < 30 * s:
+                    continue
+                cost = crop
+                logs = [math.log(a * n / (bw * bh)) for a in areas]
+                cost += 0.25 * (sum(x * x for x in logs) / n) ** 0.5
+                for (it, x, y, w, h), a in zip(rects, areas):
+                    if it['p'] is None:   # the title tile: room for the words, not too much of the page
+                        share = a / (bw * bh)
+                        _, _, sw_, sh_ = safe(x, y, w, h)
+                        if sw_ < title_w or sh_ < self.head_h() + 18 * s or share > (0.6 if cover and n == 2 else 0.3):
+                            cost = 99
+                        cost += 0.6 * max(0, share - 0.16)
+                    elif it['p'].id in big:
+                        cost -= 0.5 * a / (bw * bh)
+                best.append((cost, ta, rects))
+        best.sort(key=lambda b: b[0])
+        chosen = None
+        for fits_allowed in (0, 1):   # first every photo cropped safely; else one photo shown whole in its tile
+            for cost, ta, rects in best[:300]:
+                if cost >= 99:
+                    break
+                placed, fits = [], 0
+                for it, x, y, w, h in rects:
+                    clip = [m + x, m + y, w, h]
+                    if it['p'] is None:
+                        placed.append((None, clip, None))
+                        continue
+                    f = focus_for(it['p'], clip)
+                    if f is None:
+                        fits += 1
+                        if fits > fits_allowed or abs(math.log((w / h) / it["p"].a)) > 0.9:
+                            break
+                    placed.append((it['p'], clip, f))
+                else:
+                    chosen = placed
+                    break
+            if chosen:
+                break
+        if chosen:
+            placed = chosen
+            pg = self.page('fill', side)
+            pg['full'] = True
+            for p, clip, f in placed:
+                if p is None:
+                    pg['items'].append({'type': 'rect', 'x': clip[0], 'y': clip[1], 'w': clip[2], 'h': clip[3],
+                                        'color': self.color(self.c.get('tile_color', 'accent'))})
+                    x, y, w, h = safe(clip[0] - m, clip[1] - m, clip[2], clip[3])
+                    pad = 2 * s
+                    th = self.head_h() + (self.lines_of('story', story, w - 2 * pad) * self.pt('story') + 4 * s if story else 0)
+                    ty = y + (h - th) / 2
+                    tc = self.c.get('tile_ink') or '#FFFFFF'
+                    self.text(pg, 'hero' if cover else 'h2', head[0], x + pad, ty, w - 2 * pad, 'center', tc)
+                    if cover:
+                        ty += self.pt('hero') - self.pt('h2')
+                    if head[1]:
+                        self.text(pg, 'label', head[1], x + pad, ty + self.pt('h2') + 3 * s, w - 2 * pad, 'center', tc)
+                    if story:
+                        self.text(pg, 'story', story, x + pad, ty + self.head_h(), w - 2 * pad, 'center', tc)
+                        pg['story_placed'] = True
+                    pg['tile'] = clip
+                elif f is None:   # whole, in its own shape, centred in its tile
+                    x, y, w, h = clip
+                    nw, nh = (h * p.a, h) if w / h > p.a else (w, w / p.a)
+                    self.frame(pg, p, [x + (w - nw) / 2, y + (h - nh) / 2, nw, nh], skin=False)
+                else:
+                    self.frame(pg, p, clip, focus=f, skin=False)
+            return pg
+        return None
 
     # ---- single pages
     def scene(self, side, photos, head=None, illustration=None):
@@ -380,7 +553,11 @@ class Designer:
             self.text(pg, 'label', photos[0].taken[11:16], ox, ty, w, align)
         return pg
 
-    def fill(self, side, photos, head=None, running=None, qr=None, illustration=None, story=None):
+    def fill(self, side, photos, head=None, running=None, qr=None, illustration=None, story=None, big=()):
+        if self.c.get('full') and not qr:
+            pg = self.full(side, photos, head, story, big)
+            if pg is not None:
+                return pg
         if self.c.get('scene') and not qr:
             return self.scene(side, photos, head, illustration)
         pg = self.page('fill', side)
@@ -772,6 +949,76 @@ class Designer:
                             'color': self.c['colors']['ink']})
         return True
 
+    # ---- stickers: a note as a die-cut sticker stuck on the photo, next to what it is about
+    STICKERS = ('star', 'burst', 'arrow')
+
+    def sticker(self, pg, photo_id, at, text, shape=None, k=0, place=None, nudge=None):
+        """The sticker in its own shape, or, where that finds no room, in another."""
+        first = shape or self.STICKERS[k % len(self.STICKERS)]
+        for sh in [first] + [x for x in ('burst', 'star', 'arrow') if x != first]:
+            if self._sticker(pg, photo_id, at, text, sh, k, place, nudge):
+                return True
+        return False
+
+    def _sticker(self, pg, photo_id, at, text, shape, k, place=None, nudge=None):
+        """A sticker (a star, a burst or an arrow, white cut edge, soft shadow) with the note inside, set on the
+        photo next to the detail at (x, y in the photo, 0..1), never over a face or the title, inside the safe area."""
+        f = next((fr for fr in pg['frames'] if fr['id'] == photo_id), None)
+        if f is None or not text:
+            return False
+        s, W, H = self.s, self.W, self.H
+        ix, iy, iw, ih = f['img']
+        cx, cy, cw, ch = f['clip']
+        tx, ty = ix + at[0] * iw, iy + at[1] * ih
+        if not (cx <= tx <= cx + cw and cy <= ty <= cy + ch):
+            return False
+        shape = shape or self.STICKERS[k % len(self.STICKERS)]
+        fs = self.c.get('sticker_pt', 15) * s * 0.3528   # the type's height in mm
+        tw = len(text) * fs * 0.62
+        if shape == 'arrow':
+            w, h = tw + 2.2 * fs + 10 * s, fs * 2.6
+        else:
+            w = h = max(30 * s, (tw + 8 * s) * (1.55 if shape == 'star' else 1.3))
+        keep = 10 * s
+        faces = [fb for fr in pg['frames'] for fb in fr.get('faces', [])]
+        spot = 9 * s   # the detail itself stays in view
+        blocks = faces + [(tx - spot, ty - spot, 2 * spot, 2 * spot)] + ([pg['tile']] if pg.get('tile') else []) + \
+            [(t['x'], t['y'], t['w'], self.pt(t['cls'])) for t in pg['texts']]
+        best = None
+        for deg in range(0, 360, 20):
+            a = math.radians(deg)
+            if shape == 'arrow' and abs(math.cos(a)) < 0.85:
+                continue   # an arrow points sideways, so its words stay upright
+            for r in (0.62, 0.8, 1.0, 1.3, 1.7):
+                dist = r * (w / 2 if shape == 'arrow' else w / 2) + (3 * s if shape == 'arrow' else 0)
+                mx, my = tx - math.cos(a) * dist, ty - math.sin(a) * dist
+                box = (mx - w / 2, my - h / 2, w, h)
+                if box[0] < keep or box[1] < keep or box[0] + w > W - keep or box[1] + h > H - keep:
+                    continue
+                grow = (box[0] - 2 * s, box[1] - 2 * s, w + 4 * s, h + 4 * s)
+                if any(overlap(grow, b) > 0 for b in blocks):
+                    continue
+                score = dist + (0 if cx <= mx <= cx + cw and cy <= my <= cy + ch else 15 * s)
+                if best is None or score < best[0]:
+                    best = (score, box, deg)
+        if place:   # the user's own spot: the sticker's centre at (x, y) in the photo, 0..1
+            px, py = ix + place[0] * iw, iy + place[1] * ih
+            best = (0, (px - w / 2, py - h / 2, w, h), 0 if px < tx else 180)   # an arrow points back at the detail
+        if best is None:
+            return False
+        _, (bx, by, bw_, bh_), deg = best
+        if nudge:   # the user's own nudge, in mm on the page
+            bx, by = bx + nudge[0], by + nudge[1]
+        bx, by = min(max(bx, keep), W - keep - bw_), min(max(by, keep), H - keep - bh_)
+        ill = self.c['colors'].get('ill') or ['#FFD166', '#F2725B', '#7FC8A9']
+        colors = self.c.get('sticker_colors') or ill
+        rot = 0.0 if shape == 'arrow' else ((photo_id * 37) % 15 - 7)
+        pg['items'].append({'type': 'sticker', 'shape': shape, 'x': round(bx, 2), 'y': round(by, 2),
+                            'w': round(bw_, 2), 'h': round(bh_, 2), 'rot': rot, 'text': text, 'fs': round(fs, 2),
+                            'flip': shape == 'arrow' and math.cos(math.radians(deg)) < 0,
+                            'color': colors[k % len(colors)], 'ink': self.c.get('sticker_ink', '#1F2A33')})
+        return True
+
     # ---- the cover, in the style's own way
     def cover(self, ph, title, subtitle, more=()):
         c, s, W, H = self.c, self.s, self.W, self.H
@@ -785,6 +1032,13 @@ class Designer:
             self.text(pg, 'label', subtitle, 16 * s, H * 0.42 + self.pt('h1') + 4 * s, W - 32 * s, 'center')
             self.ornament(pg)
             return pg
+        if kind == 'full':   # the cover tiled like the pages: the cover photo the largest, the title on its tile
+            more_ = [p for p in more if p.id != ph.id][:c.get('cover_more', 3)]
+            fp = self.full('r', [ph] + more_, (title, subtitle), None, {ph.id}, cover=True)
+            if fp is not None:
+                fp['tpl'] = 'cover'
+                return fp
+            kind = 'centred'
         if kind in ('side', 'bleed', 'swiss') and ph.a > 0.95:
             kind = 'centred'   # a landscape photo can't hold a column beside it
         if kind == 'side':
@@ -1012,10 +1266,11 @@ def plan_chapter(d, ch, photos, moment_of, spread_ok):
         for k in range(0, len(g), 2):  # two a page to start with; fit() then joins or splits them
             specs.append(spec('fill', g[k:k + 2]))
         group.clear()
+    full = d.c.get('full')   # full screen: every photo joins the page groups; highlights get the larger tiles
     for p in order:
         if p.id in used:
             continue
-        if p.id in hl or p.id in quiet or p.id in details:
+        if not full and (p.id in hl or p.id in quiet or p.id in details):
             flush()
             if p.id in details:
                 specs.append(spec('jewel', [p]))
@@ -1038,6 +1293,8 @@ def plan_chapter(d, ch, photos, moment_of, spread_ok):
             first['story'] = story
     for s in specs:
         s['chapter'] = title
+        if full:
+            s['big'] = hl
         s['moments'] = {moment_of.get(p.id) for p in s['photos']}
     return specs
 
@@ -1094,7 +1351,7 @@ def tidy(d, specs):
                 if ok and tpl not in (prev, nxt):
                     specs[i] = dict(sp, tpl=tpl)
                     break
-        if specs[i]['tpl'] == 'fill' and 'quiet' not in (prev, nxt) and i % 3 == 1:
+        if specs[i]['tpl'] == 'fill' and 'quiet' not in (prev, nxt) and i % 3 == 1 and not d.c.get('full'):
             specs[i] = dict(sp, tpl='quiet')
     for i in reversed(range(len(specs))):
         if sum(s['span'] for s in specs if s['tpl'] in EDGE) <= d.c.get('edge_share', .45) * total + 1:
@@ -1136,7 +1393,7 @@ def draw(d, s, n):
                 running += f' · {ts[0]}' + (f'–{ts[-1]}' if ts[-1] != ts[0] else '')
         pages = [d.fill(side, s['photos'], head=s.get('head'), running=running,
                         qr=s.get('qr'), illustration=s.get('illustration') if s.get('head') else None,
-                        story=s.get('story'))]
+                        story=s.get('story'), big=s.get('big') or ())]
         if s.get('story') and not pages[0].pop('story_placed', False):   # a scene places its own words
             pg = pages[0]
             pg['texts'].append({'cls': 'story', 'text': s['story'], 'x': d.area(side)[0], 'y': d.H - d.mt - 12 * d.s,
@@ -1179,7 +1436,7 @@ def check(d, pages, photos_by_id, goal=None, chapters=()):
             if f['cropped']:
                 if not ph.crop_ok:
                     unknown.append(ph.id)
-                elif not crop_safe(ph, f['clip'], f['img']):
+                elif not crop_safe(ph, f['clip'], f['img'], feet=not p.get('full') or d.c.get('full_keep_feet', True)):
                     cut.append(ph.id)
             if p['tpl'] == 'opener-spread':
                 for fx, fy, fw, fh in faces_mm(ph, f['img'], main=True):   # the spine: the edge that meets the other page

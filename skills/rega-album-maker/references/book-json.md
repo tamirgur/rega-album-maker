@@ -37,7 +37,7 @@
 | `book.chapters` | `day`, `part` (parts of one day) or `month`. See "Chapters" below. |
 | `format.pages` | Inside pages, even. `group.py` scales the quotas to it, and `layout.py` builds exactly that many pages. `w`, `h`, `min_pages` and `max_pages` come from the printer's product. |
 | `design.structure` | `album`, `journal` or `magazine` (`references/design.md`). |
-| `design.style` | One of the 15 styles in `assets/styles`, or a style file in the work folder (`{"base": "nordic", ...}`). |
+| `design.style` | One of the 16 styles in `assets/styles`, or a style file in the work folder (`{"base": "nordic", ...}`). |
 | `design.palette` | `style` (the style's own), a palette from `assets/palettes.json`, or a brand `{"accent": "#..."}`. |
 | `design.elements` | Switch elements off with `false`: `route_map`, `illustrations`, `badges`, `callouts`, `qr`. |
 | `confirmed` | `true` once the user said yes to the brief. Build nothing before. |
@@ -69,6 +69,7 @@
 |---|---|
 | `title`, `subtitle` | The book's title, 1–3 words. The subtitle defaults to the date range. They go on the cover, the first page and the back. |
 | `cover` | The cover photo. It fills the top of the cover when a crop is safe; otherwise it is shown whole. |
+| `cover_more` | Optional: the cover's other photos, for a cover that takes more than one (Mosaic, Newspaper, Full screen). Without it, the first highlight of each chapter. |
 | `closing` | The photo on the last page. Without one, the last photo of the last chapter closes the book. |
 | `no_people` | Photos with nobody in them: they may be cropped to fill a frame. Never a document. |
 | `pass` | Optional: a boarding pass on the route page (`from`, `via`, `to`, `date`). Left out when there is a `journey`: its legend says the same. |
@@ -81,7 +82,7 @@
 | `chapters[].story` | Optional: one real sentence, in the family's voice. |
 | `chapters[].deck` | Optional: the small line under the title. Generated as `weekday · date · place` when left out. |
 | `chapters[].illustration` | Optional, from `assets/illustrations.json`: balloon, bandaid, cake, camera, car, fish, heart, lifering, moon, mountain, mug, palm, pin, plane, popsicle, rain, sheep, sprig, sprout, star, sun, sunflower, tent, waterfall, watermelon. Only for something that really happened in the chapter. |
-| `chapters[].callout` | Optional: a note with a hand-drawn arrow to a real detail in a photo of this chapter. `at` is the detail's place in the photo (0–1 across, 0–1 down). Placed only where the page has room. |
+| `chapters[].callout` | Optional: a note with a hand-drawn arrow to a real detail in a photo of this chapter. `at` is the detail's place in the photo (0–1 across, 0–1 down). Placed only where the page has room. In Full screen it is a sticker on the photo: `sticker` picks its shape (`star`, `burst` or `arrow`), `sticker_at` puts its centre at a place in the photo (0–1, 0–1), and `sticker_nudge` moves it by [x, y] mm. It keeps off people, the detail and the title unless `sticker_at` places it. |
 | `chapters[].tint` | Optional: a page colour for this chapter, such as `slate` for an evening. |
 | `chapters[].qr` | Optional: `{"url": "...", "label": null}`, a link the user gave you. |
 

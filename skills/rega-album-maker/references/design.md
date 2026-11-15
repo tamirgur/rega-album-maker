@@ -2,7 +2,7 @@
 
 ## Contents
 - Structures: album, journal, magazine
-- Styles: the 15, and what a style file holds
+- Styles: the 16, and what a style file holds
 - Palettes: the roles, the 10 palettes, the colour rules
 - Elements: the anatomy, the depths, the built-in elements, the bank by kind of book
 - The templates
@@ -20,7 +20,7 @@ ground: the rules at the end of this file.
 | **Palette** | Its colours, by role | `assets/palettes.json` (10) |
 
 `layout.py` merges them (`scripts/looks.py`), plans the pages and checks the rules. You decide the choices in
-`selection.json` and the exceptions. You never invent a style per book: the 15 are designed once and tested, so
+`selection.json` and the exceptions. You never invent a style per book: the 16 are designed once and tested, so
 every book looks studio-made. Your creativity goes into what each page tells and which element tells it.
 
 ## Structures
@@ -54,6 +54,7 @@ opens across a spread, whatever the structure.
 | 13 | `pastel` | פסטל | Dusty pink and sage, soft arches, rounded corners | pastel |
 | 14 | `retro` | רטרו | Cream, seventies stripes, prints in a warm tone | earth |
 | 15 | `mosaic` | פסיפס | A tight grid with 2 mm gaps, the title on a tile of colour | photos |
+| 16 | `fullscreen` | מסך מלא | Every page tiled edge to edge, thin white lines, photos cropped to their tiles (never through a face), the title on a tile of colour, notes as die-cut stickers | photos |
 
 Each style file holds its fonts (all bundled, all OFL), type sizes, margins, frame (`mat`, `polaroid`, `rounded`,
 `print`, `retro`, `keyline`, `soft`, `shadow` or none), tilt, tape, paper texture, photo tone (`warm`, `bw`, `retro`,

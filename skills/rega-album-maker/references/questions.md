@@ -79,7 +79,7 @@ Show, don't describe: every choice is a picture made by `sample.py` on the user'
 | Question | English | Hebrew | Default |
 |---|---|---|---|
 | Structure | "How should the story be told? An album (the photos tell it, calm), a journal (day after day, with the hours and small cards) or a magazine (big openers, changing pace)?" | "איך לספר את הסיפור? אלבום (התמונות מספרות, רגוע), יומן (יום אחרי יום, עם שעות וכרטיסים) או מגזין (פתיחות גדולות, קצב משתנה)?" | journal for a trip, album for the rest |
-| Style | "Here are the 15 styles on your photos. Which 2–3 do you like?" then "And which one?" | "אלה 15 הסגנונות על התמונות שלך. אילו 2–3 מושכים אותך?" ואז "ואיזה מהם?" | Nordic for a trip, Classic for an event, Kids for a child's year, Minimal for the rest |
+| Style | "Here are the 16 styles on your photos. Which 2–3 do you like?" then "And which one?" | "אלה 16 הסגנונות על התמונות שלך. אילו 2–3 מושכים אותך?" ואז "ואיזה מהם?" | Nordic for a trip, Classic for an event, Kids for a child's year, Minimal for the rest |
 | Palette | "The style's own colours, or one of these?" (the palettes listed in the style) | "הצבעים של הסגנון, או אחת מאלה?" | the style's own |
 | Elements | "I suggest: <list per chapter, each with the fact it uses>. Add or remove anything?" | "אני מציע: <רשימה לפי פרק, ולכל אחד העובדה שהוא משתמש בה>. להוסיף או להוריד?" | the elements the facts allow |
 

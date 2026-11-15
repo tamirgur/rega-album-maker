@@ -123,7 +123,8 @@ def main():
     if closing_id is None and chapters and chapters[-1].get('photos'):   # no closing photo: the story's last one
         closing_id = chapters[-1]['photos'][-1]
         chapters[-1]['photos'] = chapters[-1]['photos'][:-1]
-    ids = {i for c in chapters for i in c.get('photos', [])} | {x for x in (cover_id, closing_id) if x}
+    ids = {i for c in chapters for i in c.get('photos', [])} | {x for x in (cover_id, closing_id) if x} \
+        | set(sel.get('cover_more') or [])
     photos = {}
     for i in sorted(ids):
         r = byid.get(i)
@@ -260,8 +261,14 @@ def main():
                 d.ornament(pg)
         co = c.get('callout')
         if co and els.get('callouts', True):
-            placed = any(d.callout(pg, co['photo'], co.get('at') or [0.5, 0.5], co.get('text'), co.get('ill'))
-                         for pg in mine if any(f['id'] == co['photo'] for f in pg['frames']))
+            if style.get('stickers'):   # the note as a sticker on the photo itself
+                n_st = sum(1 for c_ in chapters[:k] if c_.get('callout'))
+                placed = any(d.sticker(pg, co['photo'], co.get('at') or [0.5, 0.5], co.get('text'), co.get('sticker'), n_st,
+                                       co.get('sticker_at'), co.get('sticker_nudge'))
+                             for pg in mine if any(f['id'] == co['photo'] for f in pg['frames']))
+            else:
+                placed = any(d.callout(pg, co['photo'], co.get('at') or [0.5, 0.5], co.get('text'), co.get('ill'))
+                             for pg in mine if any(f['id'] == co['photo'] for f in pg['frames']))
             if not placed:
                 problems.append(f'the callout on #{co["photo"]} found no free space on its page: leave it out or '
                                 'give that photo a page with more air')
@@ -312,6 +319,11 @@ def main():
             y = y0 + bh * 0.4
         d.text(first, 'h1', title, x0, y, bw, 'center')
         d.text(first, 'label', subtitle, x0, y + 14 * d.s, bw, 'center')
+    if style.get('full') and first['tpl'] == 'title' and cover_id in photos:   # full screen: the title on its tile
+        fp = d.full(first['side'], [photos[cover_id]], (title, subtitle), cover=True)
+        if fp is not None:
+            fp['tpl'] = 'title'
+            first = fp
     first['n'] = 1
     pages_in = [first] + inner
     want = goal or minp
@@ -328,15 +340,22 @@ def main():
         last_n += 1
     last = d.quiet(d.side(last_n), photos[closing_id], (closing.get('title') if isinstance(closing, dict) else None)) \
         if closing_id in photos else d.page('quiet', d.side(last_n))
+    if style.get('full') and closing_id in photos:   # full screen: the closing photo to the edges, where a crop is safe
+        fp = d.full(d.side(last_n), [photos[closing_id]])
+        if fp is not None and fp['frames'] and fp['frames'][0].get('cropped'):
+            last = fp
     last['n'], last['tpl'] = last_n, 'closing'
     pages_in.append(last)
     for pg in pages_in:
-        if pg['tpl'] in ('fill', 'side', 'band', 'quiet', 'jewel', 'title', 'route', 'closing') and pg.get('n'):
+        if pg['tpl'] in ('fill', 'side', 'band', 'quiet', 'jewel', 'title', 'route', 'closing') and pg.get('n') \
+                and not pg.get('full'):   # a full-screen page has no margin for a page number
             d.folio(pg, pg['n'])
 
     # ---- covers: the style's own cover; a mosaic or a newspaper cover also takes a few of the chapters' best photos
     more = [photos[i] for c in chapters for i in (c.get('highlights') or [])[:1] + c.get('photos', [])[:1] if i in photos]
     more = [p for k_, p in enumerate(more) if p not in more[:k_]]
+    if sel.get('cover_more'):   # the user's own choice of the cover's other photos
+        more = [photos[i] for i in sel['cover_more'] if i in photos]
     cover = d.cover(photos.get(cover_id), title, subtitle, more)
     back = d.page('back', 'l' if d.rtl else 'r', style['colors']['endpaper'])
     d.text(back, 'h2', title, 16 * d.s, H * 0.44, W - 32 * d.s, 'center', style['colors']['paper'])

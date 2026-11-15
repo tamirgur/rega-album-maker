@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Show the looks on the user's own photos, before anything is chosen, so they choose by eye.
 
-    python sample.py --work WORK --gallery                         # all 15 styles: the cover of each
+    python sample.py --work WORK --gallery                         # all 16 styles: the cover of each
     python sample.py --work WORK --styles nordic,kids,classic       # the cover and a spread in each style
     python sample.py --work WORK --style kids --palettes vivid,pastel,photos
     python sample.py --work WORK --style kids --structures          # one chapter as an album, a journal, a magazine

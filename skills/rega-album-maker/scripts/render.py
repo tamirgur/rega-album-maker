@@ -18,6 +18,7 @@ import hashlib
 import html
 import io
 import json
+import math
 import os
 import shutil
 import subprocess
@@ -166,6 +167,45 @@ def fonts_css(extra=None):
         css.append(f"@font-face{{font-family:'{role['family']}';font-weight:{role.get('weights', '400')};"
                    f"src:url(data:font/ttf;base64,{b64}) format('truetype')}}")
     return '\n'.join(css)
+
+
+def sticker_path(shape, w, h):
+    """A sticker's outline in a w x h box (mm): a star, a burst, or an arrow pointing right."""
+    cx, cy = w / 2, h / 2
+    if shape in ('star', 'burst'):
+        n, inner = (5, 0.5) if shape == 'star' else (12, 0.78)
+        pts = []
+        for i in range(2 * n):
+            r = (w / 2) * (1 if i % 2 == 0 else inner)
+            a = -math.pi / 2 + i * math.pi / n
+            pts.append(f'{cx + r * math.cos(a):.2f} {cy + r * math.sin(a):.2f}')
+        return 'M' + ' L'.join(pts) + ' Z'
+    head = h * 0.95
+    bt, bb = h * 0.2, h * 0.8
+    return (f'M0 {bt:.2f} L{w - head:.2f} {bt:.2f} L{w - head:.2f} 0 L{w:.2f} {cy:.2f} L{w - head:.2f} {h:.2f} '
+            f'L{w - head:.2f} {bb:.2f} L0 {bb:.2f} Z')
+
+
+def sticker_html(it, b, mm):
+    w, h, shape = it['w'], it['h'], it['shape']
+    edge = 1.8   # the white cut edge around the print, in mm
+    flip = ' transform="translate({:.2f} 0) scale(-1 1)"'.format(w) if it.get('flip') else ''
+    path = sticker_path(shape, w, h)
+    svg = (f'<svg viewBox="{-edge:.2f} {-edge:.2f} {w + 2 * edge:.2f} {h + 2 * edge:.2f}" '
+           f'style="position:absolute;left:{mm(-edge)};top:{mm(-edge)};width:{mm(w + 2 * edge)};height:{mm(h + 2 * edge)};overflow:visible">'
+           f'<g{flip}><path d="{path}" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="{2 * edge:.2f}" stroke-linejoin="round"/>'
+           f'<path d="{path}" fill="{it["color"]}"/></g></svg>')
+    # the words: on the arrow's body (away from its head), in the middle of a star or a burst
+    if shape == 'arrow':
+        tl, tw_ = (h * 0.95, w - h * 0.95 - 1) if it.get('flip') else (1, w - h * 0.95 - 1)
+        words = f'left:{mm(tl)};width:{mm(tw_)};top:0;height:{mm(h)}'
+    else:
+        words = f'left:0;width:{mm(w)};top:0;height:{mm(h)}'
+    return (f'<div class="abs sticker" style="left:{mm(it["x"] + b)};top:{mm(it["y"] + b)};width:{mm(w)};height:{mm(h)};'
+            f'transform:rotate({it.get("rot", 0)}deg);filter:drop-shadow(0.3mm 0.7mm 0.7mm rgba(0,0,0,.35))">{svg}'
+            f'<div style="position:absolute;{words};display:flex;align-items:center;justify-content:center;text-align:center;'
+            f'font-family:\'Playpen Sans Hebrew\',Assistant,sans-serif;font-weight:600;font-size:{mm(it["fs"])};line-height:1;'
+            f'color:{it["ink"]}">{E(it["text"])}</div></div>')
 
 
 class Ctx:
@@ -330,6 +370,8 @@ class Ctx:
                 shutil.copyfile(it['path'], dst)
             return (f'<img class="abs logo" alt="" src="print/logo{ext}" style="left:{self.mm(it["x"] + b)};top:{self.mm(it["y"] + b)};'
                     f'width:{self.mm(it["w"])};height:{self.mm(it["h"])}">')
+        if it['type'] == 'sticker':
+            return sticker_html(it, b, self.mm)
         if it['type'] in ('rect', 'arch', 'rule', 'dot', 'stamp', 'pill', 'badge', 'arrow'):
             return self.shape(it)
         if it['type'] == 'pass':
@@ -484,10 +526,8 @@ def build_html(book, ctx, pages, spreads, bleed):
     return ''.join(out)
 
 
-def print_pdf(html_path, pdf_path):
-    exe = find_browser()
-    if not exe:
-        sys.exit('Chrome, Edge or Chromium is needed to make the PDF. Install one, or set CHROME_PATH to its program file.')
+def _chrome_pdf(exe, html_path, pdf_path):
+    """One run of the browser: the page at html_path printed to pdf_path. True when it wrote the PDF."""
     if os.path.exists(pdf_path):
         os.remove(pdf_path)
     # Linux sandboxes such as Cowork's: Chrome's own sandbox can't start there, and /dev/shm is small
@@ -498,8 +538,46 @@ def print_pdf(html_path, pdf_path):
                             '--run-all-compositor-stages-before-draw', '--virtual-time-budget=30000',
                             f'--print-to-pdf={pdf_path}', Path(html_path).resolve().as_uri()],
                            capture_output=True, text=True, errors='replace', timeout=900)
-    if not os.path.isfile(pdf_path) or os.path.getsize(pdf_path) < 1000:
-        sys.exit('The browser did not write the PDF.\n' + (r.stderr or '')[-1500:])
+    return os.path.isfile(pdf_path) and os.path.getsize(pdf_path) >= 1000, r.stderr or ''
+
+
+def print_pdf(html_path, pdf_path, chunk=30):
+    exe = find_browser()
+    if not exe:
+        sys.exit('Chrome, Edge or Chromium is needed to make the PDF. Install one, or set CHROME_PATH to its program file.')
+    ok, err = _chrome_pdf(exe, html_path, pdf_path)
+    if ok:
+        return
+    # a big book (large pages, many full-page photos) can be too much for one browser run: print it in parts,
+    # each with the same head and the same folder (so the photos resolve), and join them
+    import re
+    import pymupdf
+    html = Path(html_path).read_text(encoding='utf-8')
+    i, j = html.find('<section'), html.rfind('</section>') + len('</section>')
+    sections = re.findall(r'<section\b.*?</section>', html[i:j], re.S) if i >= 0 else []
+    if len(sections) < 2:
+        sys.exit('The browser did not write the PDF.\n' + err[-1500:])
+    head, tail = html[:i], html[j:]
+    folder = os.path.dirname(os.path.abspath(html_path))
+    out = pymupdf.open()
+    parts = []
+    try:
+        for k in range(0, len(sections), chunk):
+            part_html = os.path.join(folder, f'_part{k // chunk}.html')
+            part_pdf = os.path.join(folder, f'_part{k // chunk}.pdf')
+            parts += [part_html, part_pdf]
+            Path(part_html).write_text(head + ''.join(sections[k:k + chunk]) + tail, encoding='utf-8')
+            ok, err = _chrome_pdf(exe, part_html, part_pdf)
+            if not ok:
+                sys.exit('The browser did not write the PDF, even in parts.\n' + err[-1500:])
+            with pymupdf.open(part_pdf) as d:
+                out.insert_pdf(d)
+        out.save(pdf_path, garbage=3, deflate=True)
+    finally:
+        out.close()
+        for f in parts:
+            if os.path.exists(f):
+                os.remove(f)
 
 
 def count_pages(pdf):

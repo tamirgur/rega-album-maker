@@ -1,6 +1,6 @@
 ---
 name: rega-album-maker
-description: Rega – AI Album Maker. Turns a folder of trip or family photos into a finished, print-ready photo book PDF, in 15 designed styles. It scans and dedupes thousands of photos, finds the moments, picks the best frame of each, writes short factual titles, lays out the pages in the chosen structure, style and palette, in English, Hebrew (right to left) or another language, and prepares the file and a step-by-step order guide for Prodigi or any printer. Use it whenever someone wants a photo album, photo book, trip book, family album, a bar mitzvah or wedding album, a baby's first-year book, or a printed keepsake from their photos, even if they only say "sort my trip photos into something I can print", "אלבום", "ספר תמונות", "תעשה לי אלבום מהטיול" or "אלבום לבר מצווה".
+description: Rega – AI Album Maker. Turns a folder of trip or family photos into a finished, print-ready photo book PDF, in 16 designed styles. It scans and dedupes thousands of photos, finds the moments, picks the best frame of each, writes short factual titles, lays out the pages in the chosen structure, style and palette, in English, Hebrew (right to left) or another language, and prepares the file and a step-by-step order guide for Prodigi or any printer. Use it whenever someone wants a photo album, photo book, trip book, family album, a bar mitzvah or wedding album, a baby's first-year book, or a printed keepsake from their photos, even if they only say "sort my trip photos into something I can print", "אלבום", "ספר תמונות", "תעשה לי אלבום מהטיול" or "אלבום לבר מצווה".
 license: MIT (see LICENSE). Bundled fonts under the SIL Open Font License; details in assets/LICENSES.md
 compatibility: Runs scripts locally. Needs Python 3.9+ with the packages in requirements.txt and Chrome, Edge or Chromium for the PDF. Optional OpenCV (faces) and ffmpeg (video clips). Network only for optional place names (OpenStreetMap) and a version check (GitHub). Made for Claude Code and Cowork; any agent that runs skill scripts can use it.
 metadata:
@@ -231,8 +231,8 @@ line what you chose.
 1. **Structure:** album, journal or magazine (`references/design.md`). Recommend by the kind of book. A magazine
    needs a style whose photos run to the edge (Minimal, Colourful, Bold, Newspaper, Swiss); with another style offer
    album or journal only. Show them only if the user hesitates: `sample.py --work "<work>" --style <style> --structures`.
-2. **Style:** say why in one line ("Making your cover in all 15 styles, so you can pick by seeing them on your
-   photos: a minute or two"), then `sample.py --work "<work>" --gallery`: one image of the 15 covers. Let them pick
+2. **Style:** say why in one line ("Making your cover in all 16 styles, so you can pick by seeing them on your
+   photos: a minute or two"), then `sample.py --work "<work>" --gallery`: one image of the 16 covers. Let them pick
    two or three numbers, then `sample.py --work "<work>" --styles a,b,c` shows a cover and a spread in each. They
    choose one.
 3. **Palette:** the style's own, or another: `sample.py --work "<work>" --style <style> --palettes a,b,c`. Offer the

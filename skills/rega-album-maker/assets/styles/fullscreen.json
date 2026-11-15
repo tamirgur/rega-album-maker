@@ -1,0 +1,101 @@
+{
+ "name": "fullscreen",
+ "he": "מסך מלא",
+ "en": "Full screen",
+ "n": 16,
+ "describe": "Every page covered edge to edge by photos, with thin lines between them; photos are cropped to their tiles, never through a face. The chapter title sits on a tile of colour.",
+ "describe_he": "כל עמוד מכוסה בתמונות מקצה לקצה, בקווים דקים ביניהן; התמונות נחתכות לאריחים, אף פעם לא דרך פנים. כותרת הפרק על אריח צבע.",
+ "palette": "photos",
+ "base_palette": "neutral",
+ "paper": "#FFFFFF",
+ "palettes": [
+  "photos",
+  "neutral",
+  "sage",
+  "earth"
+ ],
+ "type": {
+  "hero": [
+   600,
+   48
+  ],
+  "h1": [
+   600,
+   24
+  ],
+  "h2": [
+   600,
+   30
+  ],
+  "deck": [
+   400,
+   10
+  ],
+  "story": [
+   300,
+   11
+  ],
+  "label": [
+   400,
+   9.5
+  ],
+  "folio": [
+   400,
+   9
+  ]
+ },
+ "margin": {
+  "outer": 10,
+  "spine": 14,
+  "top": 10
+ },
+ "gap": 1.6,
+ "grade": {
+  "neutralize": 0.4,
+  "contrast": 1.04,
+  "saturation": 1.0,
+  "warmth": 0.01
+ },
+ "frame": "none",
+ "edge": false,
+ "edge_share": 0,
+ "opener_spreads": false,
+ "quiet_scale": 0.9,
+ "fill_whole": true,
+ "cover": "full",
+ "title_deco": null,
+ "ornaments": [],
+ "illustrations": false,
+ "fonts": {
+  "hand": {
+   "family": "Playpen Sans Hebrew",
+   "file": "PlaypenSansHebrew-SemiBold.ttf",
+   "weights": "600"
+  }
+ },
+ "display_classes": [],
+ "text_classes": [],
+ "deck": "dots",
+ "running_heads": false,
+ "structures": [
+  "album",
+  "journal"
+ ],
+ "full": true,
+ "full_margin": 0,
+ "full_trim": 5,
+ "full_fold": 8,
+ "cover_more": 3,
+ "tile_color": "accent",
+ "tile_ink": "#FFFFFF",
+ "full_keep_feet": false,
+ "stickers": true,
+ "sticker_pt": 22,
+ "full_text_safe": 12,
+ "sticker_colors": [
+  "#FFD166",
+  "#7FC8A9",
+  "#F2725B",
+  "#9AD0EC"
+ ]
+}

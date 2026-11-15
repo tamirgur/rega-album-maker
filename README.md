@@ -32,7 +32,7 @@ before you print. You get a PDF and a preview, and, if you like, the file and an
 - **Understands what happened.** Finds the days, the places and the moments, then walks through the days with you
   and asks a few light questions. Tell as much as you like.
 - **Picks the moments.** The best frame of each moment, and whoever must look their best does.
-- **Designs.** 15 styles, from Nordic and Minimal to Scrapbook and Kids, each shown on your own photos first.
+- **Designs.** 16 styles, from Nordic and Minimal to Scrapbook and Kids, each shown on your own photos first.
 - **Adds little things from real facts.** A route map, a boarding pass, stamps, small illustrations of what
   happened, an arrow to a detail in a photo. Nothing is made up.
 - **Checks every page.** No face is cut, no title covers anyone, and the page count is exactly what you chose.
@@ -50,11 +50,11 @@ before you print. You get a PDF and a preview, and, if you like, the file and an
 - **Replace good photos.** A book of phone selfies looks like phone selfies, tidy and well laid out. The more you
   tell it about what happened, the better the book.
 
-## 15 styles
+## 16 styles
 
 Every style is shown on **your own** photos before you choose.
 
-![The 15 styles](docs/styles.jpg)
+![The 16 styles](docs/styles.jpg)
 
 ## Little things, from real facts
 
@@ -122,7 +122,7 @@ Claude asks a few short questions along the way, and you can always say "you dec
   ומניח אותן בצד, בלי למחוק כלום.
 - **מבין מה קרה:** מחלק לימים, למקומות ולרגעים. אחר כך עובר איתך יום־יום ושואל כמה שאלות קלות. מספרים כמה שרוצים.
 - **בוחר את הרגעים:** את הפריים הכי טוב מכל רגע, ומי שחייב להיראות הכי טוב יוצא הכי טוב.
-- **מעצב:** 15 סגנונות, מנורדי ומינימלי ועד סקרפבוק וילדים. רואים כל סגנון על התמונות שלך לפני שבוחרים.
+- **מעצב:** 16 סגנונות, מנורדי ומינימלי ועד סקרפבוק וילדים. רואים כל סגנון על התמונות שלך לפני שבוחרים.
 - **אלמנטים מעובדות אמיתיות:** מפת מסלול, כרטיס טיסה, חותמות, איורים קטנים של מה שקרה, וחץ שמצביע על פרט
   בתמונה. לא ממציא כלום.
 - **בודק כל עמוד:** לא חותך פנים, כותרת לא מכסה אף אחד, ומספר העמודים יוצא בדיוק כמו שבחרת.
