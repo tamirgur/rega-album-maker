@@ -502,6 +502,46 @@ def print_pdf(html_path, pdf_path):
         sys.exit('The browser did not write the PDF.\n' + (r.stderr or '')[-1500:])
 
 
+PART = int(os.environ.get('REGA_PDF_PART') or 32)   # pages printed at once: a big book of full-size photos in one go
+# runs the browser out of memory
+
+
+def print_in_parts(book, ctx, seq, bleed, hp, pdf, work, name):
+    """The PDF of seq. A long book is printed PART pages at a time and joined, when PyMuPDF is there to join them."""
+    try:
+        import pymupdf
+    except ImportError:
+        try:
+            import fitz as pymupdf
+        except ImportError:
+            pymupdf = None
+    if pymupdf is None or len(seq) <= PART:
+        print_pdf(hp, pdf)
+        return
+    parts = []
+    try:
+        for i in range(0, len(seq), PART):
+            php = os.path.join(work, f'{name}.part{i // PART:02d}.html')
+            with open(php, 'w', encoding='utf-8') as f:
+                f.write(build_html(book, ctx, seq[i:i + PART], False, bleed))
+            ppdf = php[:-5] + '.pdf'
+            parts.append((php, ppdf))
+            print_pdf(php, ppdf)
+        out = pymupdf.open()
+        for _, ppdf in parts:
+            with pymupdf.open(ppdf) as d:
+                out.insert_pdf(d)
+        if os.path.exists(pdf):
+            os.remove(pdf)
+        out.save(pdf)
+        out.close()
+    finally:   # the parts are our own files in the work folder
+        for php, ppdf in parts:
+            for x in (php, ppdf):
+                if os.path.exists(x):
+                    os.remove(x)
+
+
 def count_pages(pdf):
     try:
         import pymupdf
@@ -542,7 +582,7 @@ def main():
         with open(hp, 'w', encoding='utf-8') as f:
             f.write(build_html(book, ctx, seq, spreads, a.bleed))
         pdf = os.path.join(work, name + '.pdf')
-        print_pdf(hp, pdf)
+        print_in_parts(book, ctx, seq, a.bleed, hp, pdf, work, name)
         n = count_pages(pdf)
         print(f'{pdf}  ({os.path.getsize(pdf) / 1e6:.1f} MB' + (f', {n} pages' if n else '') + ')')
         if n and n != len(seq):

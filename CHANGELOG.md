@@ -3,6 +3,26 @@
 All notable changes to Rega – AI Album Maker. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and versions follow [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+From a real honeymoon book: 57 days, 3,500 photos and videos, a 30 x 30 cm layflat at Prodigi shipped to Israel.
+
+### Fixed
+- **Prodigi's page limit counts the covers.** A 122-page product takes a PDF of 122 pages in all, so at most 120
+  inside pages. The book was made with 122 inside pages (a 124-page PDF), and Prodigi's order form refused it with
+  only "no shipment options available to the selected destination", which reads like a shipping problem.
+  `printer.py --choose` now keeps the inside pages two under the product's limit, and `--pack` checks it.
+- **A stopped scan goes on where it was.** The scan saved nothing until the very end, so on a connection with a short
+  time limit per command (Cowork's link to the user's computer) 3,500 files never finished. Every file read is now
+  kept in `scan.partial.jsonl` (with its faces), read back on the next run and removed when the scan is complete.
+- **A long book no longer runs the browser out of memory.** A 120-page book of full-size photos (about 280 MB) made
+  Chrome stop without writing the PDF. `render.py` now prints 32 pages at a time and joins them (with PyMuPDF; without
+  it, as before in one go). `REGA_PDF_PART` sets the batch size.
+
+### Changed
+- The Prodigi catalogue notes which products were quoted to Israel (November 2026): the 21 x 21 cm layflat is not
+  available there, and only Budget and Standard shipping are offered.
+
 ## [1.0.2] - 2026-11-05
 
 ### Fixed

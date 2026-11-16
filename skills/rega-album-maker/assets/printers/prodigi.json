@@ -102,7 +102,9 @@
    "Helvetica",
    "Arial",
    "Brandon"
-  ]
+  ],
+  "page_limit_includes_covers": true,
+  "page_limit_note": "A product's page range counts every page of the uploaded PDF, the covers included: the quote API takes pageCount 122 for BOOK-FE-11_7-SQ-LF-G and refuses 124 (InvalidPageCount), and a 124-page PDF (122 inside) showed 'no shipment options available to the selected destination' in the order form (November 2026)."
  },
  "variants": [
   {
@@ -449,5 +451,8 @@
   "shipping": "Two books shipped together from Germany to Israel cost USD 19.27 (October 2026)."
  },
  "disclaimer": "Prodigi is listed because it is a print service that ships worldwide (Israel included) and takes a ready PDF. This is not a recommendation, and the skill takes no responsibility for the print, the price, the delivery or the order.",
- "spine_hebrew": "The spine field does not accept Hebrew (checked November 2026). Use English, numbers, or colour only."
+ "spine_hebrew": "The spine field does not accept Hebrew (checked November 2026). Use English, numbers, or colour only.",
+ "shipping_notes": {
+  "IL": "Quotes to Israel (November 2026): BOOK-FE-11_7-SQ-LF-G, -11_7-SQ-HARD-G, -8_3-SQ-HARD-G, -A4-P-HARD-G and -8_3-SQ-SOFT-G by Budget or Standard; Express and Overnight not available; BOOK-FE-8_3-SQ-LF-G not available to Israel at all."
+ }
 }

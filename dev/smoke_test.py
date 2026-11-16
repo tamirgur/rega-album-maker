@@ -161,6 +161,36 @@ def main():
         check('Ready to upload' in out, f'prodigi pack:\n{out[-1200:]}')
         folder = os.path.join(work, 'להדפסה')
         check(os.path.isdir(folder) and any(f.endswith('.pdf') for f in os.listdir(folder)), 'prodigi: no upload file')
+        print('prodigi page limit')   # Prodigi's page limit counts the covers: 122 asked of a 122-page product -> 120
+        br = load(os.path.join(work, 'brief.json'))
+        br['format']['pages'] = 122
+        save(os.path.join(work, 'brief.json'), br)
+        run('printer.py', '--work', work, '--choose', 'BOOK-FE-11_7-SQ-LF-G', '--copies', '1', '--country', 'IL')
+        br = load(os.path.join(work, 'brief.json'))
+        check(br['format']['pages'] == 120 and br['format']['max_pages'] == 120,
+              f'prodigi limit: {br["format"].get("pages")} pages, max {br["format"].get("max_pages")}, not 120')
+        check(br['print']['pages'] == [18, 122], f'prodigi limit: the product range is {br["print"]["pages"]}')
+        print('scan resume')   # a stopped scan goes on where it was: its part file is read, not the photos again
+        work = os.path.join(tmp, 'book-1')
+        sc = load(os.path.join(work, 'scan.json'))
+        with open(os.path.join(work, 'scan.partial.jsonl'), 'w', encoding='utf-8') as f:
+            for r in sc['items']:
+                f.write(json.dumps({k: v for k, v in r.items() if k not in ('id', 'flags', 'day')}) + '\n')
+            f.write('{"path": "cut sh')   # the last line of a stopped scan may be cut short
+        os.remove(os.path.join(work, 'scan.json'))
+        out = run('scan.py', party, '--work', work)
+        check(f'Reading 0 ({len(sc["items"]):,} known' in out, f'scan resume: the part file was not used\n{out[-600:]}')
+        check(not os.path.exists(os.path.join(work, 'scan.partial.jsonl')), 'scan resume: the part file was left behind')
+        print('pdf in parts')   # a long book is printed a few pages at a time and joined
+        r = subprocess.run([sys.executable, os.path.join(SCRIPTS, 'render.py'), '--work', work], capture_output=True,
+                           text=True, encoding='utf-8', errors='replace',
+                           env=dict(os.environ, PYTHONIOENCODING='utf-8', REGA_PDF_PART='4'))
+        b = load(os.path.join(work, 'book.json'))
+        import pymupdf
+        with pymupdf.open(os.path.join(work, 'book.pdf')) as d:
+            check(r.returncode == 0 and d.page_count == len(b['pages']),
+                  f'pdf in parts: {d.page_count} pages, {len(b["pages"])} expected\n{r.stderr[-600:]}')
+        check(not [f for f in os.listdir(work) if '.part0' in f], 'pdf in parts: the parts were left behind')
         print('samples')
         out = run('sample.py', '--work', os.path.join(tmp, 'book-1'), '--styles', 'minimal,kids')
         check(os.path.isfile(os.path.join(tmp, 'book-1', 'samples', 'styles.png')), f'samples: no sheet\n{out[-800:]}')

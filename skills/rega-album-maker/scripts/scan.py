@@ -21,11 +21,13 @@ Every collection is different, so the scan adapts:
 - images too small to print (stickers, thumbnails) are marked "small"; RAW files are counted, not read.
 
 Writes WORK/scan.json and WORK/thumbs/. The photo folders are only read, never changed.
-Re-running reuses the results for files that did not change.
+Re-running reuses the results for files that did not change, and a scan that was stopped goes on where it was
+(WORK/scan.partial.jsonl), so a short time limit or a closed laptop loses no work.
 """
 import argparse
 import bisect
 import hashlib
+import json
 import math
 import os
 import sys
@@ -255,6 +257,16 @@ def main():
     if os.path.isfile(scan_path):
         for r in load(scan_path).get('items', []):
             old[r['path']] = r
+    # files read by a scan that was stopped before the end (a time limit, a closed laptop): not read again
+    part_path = os.path.join(work, 'scan.partial.jsonl')
+    if os.path.isfile(part_path):
+        with open(part_path, encoding='utf-8') as f:
+            for line in f:
+                try:
+                    r = json.loads(line)
+                except ValueError:   # the last line of a stopped scan may be cut short
+                    continue
+                old[r['path']] = r
     recs, todo = [], []
     for p in files:
         st = os.stat(p)
@@ -270,9 +282,19 @@ def main():
           f'Reading {len(todo):,} ({len(files) - len(todo):,} known from the last scan).', flush=True)
     t0, step = time.time(), max(200, len(todo) // 20)
     if todo:
-        with ProcessPoolExecutor(max_workers=a.workers) as ex:
+        import faces as faces_early
+        early = faces_early.available()
+        with ProcessPoolExecutor(max_workers=a.workers) as ex, open(part_path, 'a', encoding='utf-8') as part:
             for i, r in enumerate(ex.map(analyze, [(p, thumbs) for p in todo], chunksize=8), 1):
+                if early and r.get('kind') == 'photo' and 'error' not in r and r.get('thumb'):
+                    try:   # here rather than after the loop, so a stopped scan keeps its faces too
+                        r['faces'] = faces_early.detect(r['thumb'])
+                    except Exception:
+                        r['faces'] = []
                 recs.append(r)
+                part.write(json.dumps(r, ensure_ascii=False) + '\n')   # so a stopped scan can go on where it was
+                if i % 8 == 0:
+                    part.flush()
                 if i % step == 0:
                     print(f'  {i:,} of {len(todo):,} read ({time.time() - t0:.0f} s)', flush=True)
 
@@ -384,6 +406,8 @@ def main():
                 r['dup_of'] = keep['id']
 
     save(scan_path, {'folders': folders, 'from': a.d0, 'to': a.d1, 'tz': tz, 'items': recs})
+    if os.path.isfile(part_path):
+        os.remove(part_path)   # our own file in the work folder: the full scan.json now holds it all
 
     inr = [r for r in recs if r['in_range']]
     cnt = Counter(f for r in inr for f in r['flags'])

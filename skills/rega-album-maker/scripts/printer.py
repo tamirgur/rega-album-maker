@@ -42,6 +42,13 @@ def variant(sku):
     return c, p
 
 
+def inside_max(c, hi):
+    """The most inside pages a product takes. Prodigi's page limit counts every page of the PDF, the two covers
+    included: a 124-page PDF (122 inside) of a 122-page product is refused, and the order form then shows only
+    "no shipment options available to the selected destination"."""
+    return hi - 2 if c.get('file_rules', {}).get('page_limit_includes_covers') else hi
+
+
 def list_products(kind=None):
     c = catalogue()
     print(f'Prodigi photo books and magazines (catalogue of {c["captured"]}; prices in USD before extra pages and shipping)')
@@ -68,6 +75,7 @@ def choose(work, sku, copies, country):
     lo, hi = p['pages']
     if p['sku'].endswith('-G-F'):
         hi = 500
+    hi_pdf, hi = hi, inside_max(c, hi)   # the product's limit counts the PDF's pages; the book's, its inside pages
     fmt = dict(brief.get('format') or {})
     pages = fmt.get('pages')
     fmt.update({'size': f'prodigi-{p["sku"]}', 'w': p['w_mm'], 'h': p['h_mm'], 'min_pages': lo, 'max_pages': hi})
@@ -79,7 +87,7 @@ def choose(work, sku, copies, country):
             fmt['pages'] = fixed
     brief['format'] = fmt
     brief['print'] = {'printer': 'prodigi', 'sku': p['sku'], 'type': p['type'], 'w': p['w_mm'], 'h': p['h_mm'],
-                      'paper': p['paper'], 'pages': [lo, hi], 'gutter_mm': p.get('gutter_hidden_mm', 6),
+                      'paper': p['paper'], 'pages': [lo, hi_pdf], 'gutter_mm': p.get('gutter_hidden_mm', 6),
                       'binds': 'left', 'base_usd': p['price_usd'], 'catalogue': c['captured'],
                       'copies': copies, 'country': country, 'chosen': date.today().isoformat()}
     save(path, brief)
@@ -149,8 +157,9 @@ def pack(work):
     else:
         total = n_inside + 2
         notes.append('pymupdf is not installed, so the PDF itself was not opened: size and fonts unchecked')
-    if not lo <= n_inside <= hi:
-        problems.append(f'{n_inside} inside pages, the product takes {lo}-{hi}')
+    if not lo <= n_inside <= inside_max(c, hi):
+        problems.append(f'{n_inside} inside pages, the product takes {lo}-{inside_max(c, hi)}'
+                        + (f' (Prodigi counts the two cover pages in its {hi}-page limit)' if inside_max(c, hi) != hi else ''))
     rules = [r for r in book.get('rules', []) if not r['ok']]
     for r in rules:
         problems.append(f'design rule: {r["rule"]} ({r["note"]})')
