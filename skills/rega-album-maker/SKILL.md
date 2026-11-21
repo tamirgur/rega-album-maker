@@ -2,7 +2,7 @@
 name: rega-album-maker
 description: Rega – AI Album Maker. Turns a folder of trip or family photos into a finished, print-ready photo book PDF, in 15 designed styles. It scans and dedupes thousands of photos, finds the moments, picks the best frame of each, writes short factual titles, lays out the pages in the chosen structure, style and palette, in English, Hebrew (right to left) or another language, and prepares the file and a step-by-step order guide for Prodigi or any printer. Use it whenever someone wants a photo album, photo book, trip book, family album, a bar mitzvah or wedding album, a baby's first-year book, or a printed keepsake from their photos, even if they only say "sort my trip photos into something I can print", "אלבום", "ספר תמונות", "תעשה לי אלבום מהטיול" or "אלבום לבר מצווה".
 license: MIT (see LICENSE). Bundled fonts under the SIL Open Font License; details in assets/LICENSES.md
-compatibility: Runs scripts locally. Needs Python 3.9+ with the packages in requirements.txt and Chrome, Edge or Chromium for the PDF. Optional OpenCV (faces) and ffmpeg (video clips). Network only for optional place names (OpenStreetMap) and a version check (GitHub). Made for Claude Code and Cowork; any agent that runs skill scripts can use it.
+compatibility: Runs scripts locally. Needs Python 3.9+ with the packages in requirements.txt and Chrome, Edge or Chromium for the PDF. Optional OpenCV (faces) and ffmpeg (video clips). Network only for optional place names (OpenStreetMap), a version check (GitHub), and optional Lupa MCP uploads. Made for Claude Code and Cowork; any agent that runs skill scripts can use it.
 metadata:
   author: Tamir Gur
   version: "1.0.2"
@@ -31,8 +31,11 @@ speed or shortcut overrides them.
    the price, the delivery or an order, and it recommends no printer.
 5. **Only the folders you were given.** Don't search other folders or open documents (tickets, IDs, mail) without
    asking first.
-6. **Hands off the printer's site.** Prepare and guide only: never sign in, upload, fill in details or pay on a
-   printer's site, even when a browser is available.
+6. **Hands off the printer's site (except Lupa MCP draft creation).** Never sign in via browser, enter an address,
+   phone, email or card, or place/pay an order on any printer's site. When the user chooses **Lupa** via Lupa MCP,
+   you may create a draft album, upload curated photos via Lupa's authenticated `upload_api`, and run `finish_album`
+   only after explicit user confirmation — the user reviews, edits and completes checkout/payment themselves on
+   `lupa.co.il`.
 7. **Big cloud downloads need a yes.** Before scanning a cloud folder, say about how much will be downloaded; above
    about 2 GB, ask first. At the end, offer to free the space (OneDrive: "free up space"; iCloud: "remove download").
 8. **A date or place only when sure.** WhatsApp, shared and saved photos carry the day they arrived, not the day
@@ -41,13 +44,15 @@ speed or shortcut overrides them.
    identifies a child (a full name, a school, an address).
 10. **Say what is left behind.** At the end, tell the user the work folder holds thumbnails of everything scanned,
     unrelated photos included, and that they may delete it. Never delete it yourself.
-11. **No book before it passes.** Never hand over a book before `check.py` passes and you have looked at every
-    spread.
+11. **No book before it passes.** Never hand over a PDF book before `check.py` passes and you have looked at every
+    spread — or, for Lupa, before `lupa.py --pack` passes photo-count and 800 px dimension checks and the user
+    confirms the full proposal before `finish_album`.
 
 The scripts measure (thousands of files, duplicates, faces, moments, layout, rules, PDF). You judge (the best frame,
 what each chapter tells, which element tells it). The user tells (what mattered, who is who) and decides.
 
-`<skill>` below is this skill's folder: `${CLAUDE_SKILL_DIR}`. Use `python3` if `python` is not found.
+`<skill>` below is this skill's folder: `${CLAUDE_SKILL_DIR}`. Prefer `<skill>/.venv/Scripts/python.exe` on Windows (or
+`<skill>/.venv/bin/python` on macOS/Linux) when `.venv` exists; otherwise use `python` (or `python3`).
 
 ## Talking to the user
 
@@ -78,9 +83,9 @@ I'll help you turn your photos into a print-ready book, in 10 stages:
 • You get: a print-ready PDF, a preview, and if you like, the file and an order guide for a printer.
 • I'll need from you: the photo folders; a few words on what happened and who is who; a few choices
   (size, pages, style); a yes to the plan; your notes on the preview.
-• I never: touch your original photos, invent facts, crop people, upload anything or pay for anything.
+• I never: touch your original photos, invent facts, crop people, upload anything (unless you choose Lupa MCP) or pay for anything.
 • Privacy: your photos stay on your computer. I look at small thumbnails, which go to the AI company
-  running me (Anthropic, for Claude); nothing else is uploaded.
+  running me (Anthropic, for Claude); nothing else is uploaded unless you choose Lupa MCP.
 • Time: the scan takes minutes; each round of questions, a minute of yours. You can stop and go on later.
 What I need now: where are the photos? (one folder or several)
 ```
@@ -92,9 +97,9 @@ The same in Hebrew, for a Hebrew speaker:
 • מה תקבל: קובץ PDF מוכן להדפסה, תצוגה מקדימה, ואם תרצה, קובץ והוראות הזמנה לבית דפוס.
 • מה אצטרך ממך: את תיקיות התמונות; כמה מילים על מה קרה ומי בתמונות; כמה בחירות (גודל, עמודים, סגנון);
   אישור לתוכנית; והערות על התצוגה המקדימה.
-• מה אני לא עושה: לא נוגע בתמונות המקוריות, לא ממציא פרטים, לא חותך אנשים, לא מעלה ולא משלם.
+• מה אני לא עושה: לא נוגע בתמונות המקוריות, לא ממציא פרטים, לא חותך אנשים, לא מעלה (אלא אם תבחר ב־Lupa MCP) ולא משלם.
 • פרטיות: התמונות נשארות במחשב שלך. אני רואה תמונות ממוזערות קטנות, שעוברות לחברה שמפעילה אותי
-  (Anthropic, במקרה של Claude); שום דבר אחר לא עולה לרשת.
+  (Anthropic, במקרה של Claude); שום דבר אחר לא עולה לרשת אלא אם תבחר ב־Lupa MCP.
 • זמן: הסריקה כמה דקות; כל סבב שאלות דקה שלך. אפשר לעצור ולהמשיך אחר כך.
 אצטרך ממך עכשיו: איפה התמונות? (תיקייה אחת או כמה)
 ```
@@ -199,7 +204,18 @@ again (fast: earlier work is reused).
 
 ### 4. Print and size
 
-**First ask where they will print**, because the printer sets the sizes, the page range and the margins:
+**First ask where they will print**, because the printer sets the sizes, the page range (or photo bounds) and the margins:
+- **Lupa (via Lupa MCP):** an Israeli photo-book service (`lupa.co.il`) available when Lupa MCP is connected. Say
+  plainly that it is an option, not a recommendation, and there is no responsibility for the print, the price, the
+  delivery or an order. If the user asks for Lupa and Lupa MCP isn't connected yet, guide them to connect it (or pack
+  `for-lupa` / `ללופה` for manual upload) using `references/printing.md`. Lupa takes curated photos (not a PDF) and lays out the book on Lupa's server. Call
+  `start_album` (or `list_formats` on an open album)
+  to inspect `cover_id`, `density`, `direction` (`RTL`/`LTR`) and `book_rules` (`REGULAR` `24–864` photos, `MINI_LUPA`
+  `24–144`, `HAGGADAH` `24–60`; note `single` normal `24–144`, `single` layflat `24–51`, `multiple`/`magazine` layflat
+  `24–502`). Help them pick `cover_id`, `density`, `direction`, language and title (`2–28` chars for `finish_album`),
+  run `python <skill>/scripts/lupa.py --work "<work>" --choose --cover <cover_id> --density <density> --direction <RTL|LTR> [--min-photos N --max-photos N] [--album TOKEN]`,
+  then run `brief.py --work "<work>" --options` for 3 target photo counts, set `--photos N`, and re-run `group.py`
+  (which filters `< 800 px` photos and scales quotas to `target_photos`).
 - **Prodigi:** a service that ships worldwide, Israel included, and takes a ready PDF. Say plainly that it is an
   option, not a recommendation. `python <skill>/scripts/printer.py --list` shows the products (hardcover, softcover, layflat,
   magazine) with sizes, pages and base prices. Help them choose by cover type, size and paper, then
@@ -210,14 +226,18 @@ again (fast: earlier work is reused).
 - **Only a PDF for now:** `"print": {"printer": "none"}`, a standard size: square 21 cm (the default), square 30 cm,
   A4 portrait or A5 portrait. Landscape pages are not offered: they leave too much empty space in most styles.
 
-Then `python <skill>/scripts/brief.py --work "<work>" --options` gives three page counts (compact, standard, rich)
+For PDF printers, `python <skill>/scripts/brief.py --work "<work>" --options` gives three page counts (compact, standard, rich)
 with about how many photos each holds, within the product's range. Offer them, with the language, the title (1–3
 words) and how the book is divided (days for a trip, parts for one event, months for a year). Every extra page costs
 money, so the user chooses. Write `format` and `book`, then run `group.py` again for the quotas.
 
 ### 5. Design
 
-Four short choices, each shown on the user's own photos, never described in the abstract: the user picks a look by
+**For Lupa (via Lupa MCP):** skip `sample.py` and PDF styles — Lupa applies its own themes during `finish_album`.
+Keep `"design": {"mode": "lupa", "theme": null}` (set automatically by `lupa.py --choose`); the Lupa theme is chosen
+from `list_themes` right after upload in Stage 9.
+
+For PDF books, four short choices, each shown on the user's own photos, never described in the abstract: the user picks a look by
 seeing it. `sample.py` builds them from a few strong photos of the scan (look at a contact sheet first and pass a
 good cover and 6 photos with `--cover ID --photos ID,...`) and puts each set in **one image** of small samples,
 numbered and named. It opens that image on the user's screen by itself ("Opened on the user's screen"); also give
@@ -247,14 +267,14 @@ Write `design`: `{"structure": "album", "style": "nordic", "palette": "style", "
 
 ### 6. Confirm
 
-Sum up in a few lines: the folders, what goes in, the moments, the printer and product, the size and pages, the
-structure, style and palette, the elements. Ask for a yes, then set `"confirmed": true`. Changes later are
+Sum up in a few lines: the folders, what goes in, the moments, the printer and product, the size and pages (or Lupa
+target photo count), the design (or Lupa theme note). Ask for a yes, then set `"confirmed": true`. Changes later are
 fine: update the brief and redo only what they touch.
 
 ### 7. Build
 
 **Choose.** `python <skill>/scripts/sheets.py --work "<work>"` makes contact sheets moment by moment (key moments
-marked, burst frames as `B#id`). Read each sheet. The craft is in `references/rules.md`:
+marked, burst frames as `B#id`; when `printer` is `lupa`, photos with any side `< 800 px` are excluded). Read each sheet. The craft is in `references/rules.md`:
 - the best frame of each moment, more for the moments that matter, the same scene once;
 - the person who must look their best gets their best frame every time;
 - the chapter in order, with wide views, people and details;
@@ -268,7 +288,7 @@ with their photos, `highlights`, `quiet`, `details`, and optionally `story`, `il
 (`weekday · date · place`) is generated. A story sentence only where the user told a real story, in their voice.
 Ask at most three questions, and only when the answer changes the book.
 
-**Lay out, render, check.**
+**Lay out, render, check (PDF books):**
 
 ```
 python <skill>/scripts/layout.py --work "<work>"
@@ -283,15 +303,46 @@ meant. Look at the cover and every spread
 in the previews: the face detector misses faces turned away and can't see feet. Fix `selection.json`, run again, and
 finish with `check.py` until it says "Ready for the printer".
 
+**Pack & check (Lupa via Lupa MCP):**
+
+```
+python <skill>/scripts/lupa.py --work "<work>" --pack
+```
+
+This checks every selected photo against Lupa's `upload_rules` (both sides `>= 800 px`), leaves files `<= 15 MB`
+unchanged, compresses any `> 15 MB` photo to JPEG (`<= 2400 px` short side, quality 85, EXIF preserved), verifies the
+total count fits `[photos_min, photos_max]`, and writes `<album>/for-lupa` (or `ללופה`) + `<work>/lupa-manifest.json`.
+If anything was skipped or out of bounds, adjust `selection.json` and run `lupa.py --pack` again.
+
 ### 8. Review
 
-Save the version in the book's folder: `python <skill>/scripts/deliver.py --work "<work>"` copies the checked PDF
+**Lupa (via Lupa MCP):** share the curated selection summary (counts by chapter, cover photo, any skipped frames) and
+link the `for-lupa` / `ללופה` folder so the user can swap, add, or drop photos before uploading. The user may also
+delete unwanted photos directly from `for-lupa` / `ללופה`, and `lupa.py --sync` (or `--upload`) will reconcile
+`lupa-manifest.json` and `selection.json` automatically; for swaps or additions, update `selection.json` and re-run
+`lupa.py --pack`. When the user approves, set `"approved": true`.
+
+**PDF books:** save the version in the book's folder: `python <skill>/scripts/deliver.py --work "<work>"` copies the checked PDF
 there as "<title> - גרסה 1.pdf" (then 2, 3...: an earlier version is never replaced). Give that file and the preview
 (`book.html`, spreads in reading order with page numbers). Offer two or three cover photos if the cover is not
 obviously right. Ask for changes by page number ("page 7: replace the photo"), apply them, deliver the next version,
 and show the pages that changed. When the user approves, set `"approved": true`.
 
 ### 9. Print files
+
+**Lupa (via Lupa MCP):**
+1. Get an active ticket (`start_album` if not created yet, or `get_upload_link` on `print.album`) and upload the packed
+   photos (`--upload` syncs any user deletions from `for-lupa` / `ללופה` and defaults `--folder-name` from the title):
+   `python <skill>/scripts/lupa.py --work "<work>" --upload --album <TOKEN> --ticket <TICKET>`
+   If it exits with code `2` (`TICKET_EXPIRED`), call `get_upload_link` for a fresh ticket and re-run `--upload` (it
+   resumes from `lupa-upload-state.json`).
+2. Call `get_album_summary`, then call `list_themes` (with `album`, `cover_id`, `direction`, `density`) to fetch valid
+   themes for the album.
+3. Present one complete proposal (album name, `cover_id`, `density`, `direction`, theme, uploaded photo count) and ask
+   for explicit confirmation (`"Yes"`).
+4. Only after explicit confirmation, call `finish_album`, then poll `get_album_status` until generation finishes. Save
+   `design.theme` and `print.lupa_link` in `brief.json`, and send the user the Lupa web editor link so they can review
+   and complete checkout/payment themselves on `lupa.co.il`.
 
 **Prodigi:** `python <skill>/scripts/printer.py --work "<work>" --pack`. It checks the PDF against the product
 (size, page count, fonts, resolution, the rules) and writes a print folder (`להדפסה` / `to-print`) with:

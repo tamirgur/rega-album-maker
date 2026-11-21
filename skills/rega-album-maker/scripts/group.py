@@ -143,8 +143,14 @@ def main():
     scan = load(os.path.join(a.work, 'scan.json'))
     bpath = os.path.join(a.work, 'brief.json')
     brief = load(bpath) if os.path.isfile(bpath) else {}
+    is_lupa = (brief.get('print') or {}).get('printer') == 'lupa'
     lang = a.lang or (brief.get('book') or {}).get('lang') or 'he'
     items = [r for r in scan['items'] if r['in_range'] and not {'error', 'live'} & set(r['flags'])]
+
+    def eligible(r):
+        if r['kind'] != 'photo' or set(r['flags']) & EXCLUDE:
+            return False
+        return not is_lupa or min(r.get('w') or 0, r.get('h') or 0) >= 800
     by_day = defaultdict(list)
     for r in items:
         by_day[r['day']].append(r)
@@ -165,7 +171,7 @@ def main():
     for n, key in enumerate(sorted(by_day), 1):
         its = sorted(by_day[key], key=lambda r: r['taken'])
         places, loose = cluster(its, a.place_km)
-        cands = [r for r in its if r['kind'] == 'photo' and not set(r['flags']) & EXCLUDE]
+        cands = [r for r in its if eligible(r)]
         out_places, place_of = [], {}
         for k, p in enumerate(places, 1):
             lat, lon = round(p['c'][0], 5), round(p['c'][1], 5)
@@ -192,7 +198,7 @@ def main():
                             'new_place': new, 'ids': [r['id'] for r in part],
                             'shots': sum(r['kind'] == 'photo' for r in part),
                             'videos': sum(r['kind'] == 'video' for r in part),
-                            'candidates': sum(r['kind'] == 'photo' and not set(r['flags']) & EXCLUDE for r in part)})
+                            'candidates': sum(eligible(r) for r in part)})
         d = date.fromisoformat(key)
         days.append({'n': n, 'key': key, 'weekday': d.weekday(), 'count': len(its), 'candidates': len(cands),
                      'ids': [r['id'] for r in its], 'videos': [r['id'] for r in its if r['kind'] == 'video'],
@@ -210,19 +216,24 @@ def main():
     has_gps = any(d['track'] for d in days)
     pages = (brief.get('format') or {}).get('pages')
     chapters = sum(1 for d in days if d['candidates'])
-    target = photos_for(pages, chapters, has_gps, per_page(brief)) if pages else None
+    target_photos = (brief.get('format') or {}).get('target_photos') if is_lupa else None
+    target = target_photos if is_lupa else (photos_for(pages, chapters, has_gps, per_page(brief)) if pages else None)
     for d, q in zip(days, quotas([d['candidates'] for d in days], target)):
         d['quota'] = q
     if a.geocode:
         save(cache_path, cache)
-    save(gpath, {'lang': lang, 'days': days, 'has_gps': has_gps, 'pages': pages, 'photos': sum(d['quota'] for d in days)})
+    save(gpath, {'lang': lang, 'days': days, 'has_gps': has_gps, 'pages': pages,
+                 'target_photos': target_photos, 'photos': sum(d['quota'] for d in days)})
 
     t = words(lang)
     nm = sum(len(d['moments']) for d in days)
+    plan_note = (f'Planned for Lupa ({target_photos} photos): choose about {sum(d["quota"] for d in days)} photos.'
+                 if is_lupa and target_photos else
+                 f'Planned for {pages} pages: choose about {sum(d["quota"] for d in days)} photos.'
+                 if pages else
+                 f'Without a page count: choose about {sum(d["quota"] for d in days)} photos.')
     print(f'{len(days)} days, {sum(len(d["places"]) for d in days)} places, {nm} moments '
-          f'({sum(m["key"] for d in days for m in d["moments"])} key). '
-          + (f'Planned for {pages} pages: choose about {sum(d["quota"] for d in days)} photos.' if pages else
-             f'Without a page count: choose about {sum(d["quota"] for d in days)} photos.'))
+          f'({sum(m["key"] for d in days for m in d["moments"])} key). {plan_note}')
 
     def label(p):
         return (p['name'] or '({:.3f}, {:.3f})'.format(p['lat'], p['lon'])) + ' ({})'.format(p['count'])

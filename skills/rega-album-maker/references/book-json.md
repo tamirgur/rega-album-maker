@@ -33,10 +33,10 @@
 | `scope` | What goes in. `null` in a field means everything. `from`/`to` must match the scan's `--from`/`--to`. |
 | `story` | The moments the user named, the people and how to recognize them, and who must look their best. |
 | `book.kind` | `trip`, `event`, `baby`, `year` or `other`. Day badges appear only in a trip's journal. |
-| `print` | Written by `printer.py --choose` (the product, its pages, the part of the fold it hides), or `{"printer": "other", "name": "..."}`, or `{"printer": "none"}`. |
+| `print` | Written by `printer.py --choose` (the product, its pages, the part of the fold it hides), or `lupa.py --choose` (`{"printer": "lupa", "book_type": "REGULAR", "cover_id": "...", "density": "...", "direction": "RTL", "photos_min": 24, "photos_max": 864, "album": "..."}`), or `{"printer": "other", "name": "..."}`, or `{"printer": "none"}`. |
 | `book.chapters` | `day`, `part` (parts of one day) or `month`. See "Chapters" below. |
-| `format.pages` | Inside pages, even. `group.py` scales the quotas to it, and `layout.py` builds exactly that many pages. `w`, `h`, `min_pages` and `max_pages` come from the printer's product. |
-| `design.structure` | `album`, `journal` or `magazine` (`references/design.md`). |
+| `format.pages` | Inside pages, even (PDF workflow). `group.py` scales the quotas to it, and `layout.py` builds exactly that many pages. `w`, `h`, `min_pages` and `max_pages` come from the printer's product. For Lupa, use `format.size` (`"lupa-<cover_id>"`), `format.min_photos`, `format.max_photos`, and `format.target_photos`. |
+| `design.structure` | `album`, `journal` or `magazine` (`references/design.md`). For Lupa, use `"design": {"mode": "lupa", "theme": null}` (set `theme` after `list_themes`). |
 | `design.style` | One of the 15 styles in `assets/styles`, or a style file in the work folder (`{"base": "nordic", ...}`). |
 | `design.palette` | `style` (the style's own), a palette from `assets/palettes.json`, or a brand `{"accent": "#..."}`. |
 | `design.elements` | Switch elements off with `false`: `route_map`, `illustrations`, `badges`, `callouts`, `qr`. |

@@ -43,14 +43,29 @@ def mtime(path):
 
 def options(work, brief):
     groups = load(os.path.join(work, 'groups.json'))
-    fm = brief.get('format') or {}
-    size = fm.get('size') or 'square-21'
-    minp = fm.get('min_pages') or SIZES.get(size, SIZES['square-21'])[2]
-    maxp = fm.get('max_pages')
+    fm, pr = brief.get('format') or {}, brief.get('print') or {}
     els = (brief.get('design') or {}).get('elements') or {}
     route = groups.get('has_gps') and els.get('route_map', True)
     days = [d for d in groups['days'] if d['candidates']]
     chapters, cands = len(days), sum(d['candidates'] for d in days)
+    if pr.get('printer') == 'lupa':
+        lo = pr.get('photos_min') or fm.get('min_photos') or 24
+        hi = pr.get('photos_max') or fm.get('max_photos') or 864
+        std = min(hi, max(lo, sum(base_quota(d['candidates']) for d in days)))
+        picks = sorted({max(lo, min(hi, round(std * 0.7))), std, max(lo, min(hi, round(std * 1.4)))})
+        print(f'{chapters} days, {cands:,} Lupa-eligible photos (both sides >= 800 px). '
+              f'Cover {pr.get("cover_id")} ({pr.get("density")}), allowed {lo}-{hi} photos.')
+        print('Photo count options:')
+        for p in picks:
+            name = 'compact' if p < std else 'standard (recommended)' if p == std else 'rich'
+            warn = f'  - only {cands} eligible photos available' if p > cands else ''
+            print(f'  {p:3d} photos  (~{p / max(chapters, 1):.0f} a day)  {name}{warn}')
+        print('Set it with: python lupa.py --work "..." --choose ... --photos N '
+              '(or write "format": {"target_photos": N}), then run group.py again.')
+        return
+    size = fm.get('size') or 'square-21'
+    minp = fm.get('min_pages') or SIZES.get(size, SIZES['square-21'])[2]
+    maxp = fm.get('max_pages')
     pp = per_page(brief)
     std = even_up(max(minp, pages_for(sum(base_quota(d['candidates']) for d in days), chapters, route, pp)))
     picks = sorted({even_up(max(minp, round(std * 0.7))), std, even_up(round(std * 1.4))})
@@ -64,7 +79,6 @@ def options(work, brief):
         name = 'compact' if p < std else 'standard (recommended)' if p == std else 'rich'
         warn = f'  - only {cands} good photos: some pages would hold one photo' if n > cands else ''
         print(f'  {p:3d} pages  ~{n} photos  (~{n / max(chapters, 1):.0f} a day)  {name}{warn}')
-    pr = brief.get('print') or {}
     if pr.get('printer') == 'prodigi':
         print(f'Prodigi {pr["sku"]}: from ${pr["base_usd"]:.2f} a copy, before extra pages and shipping; the order '
               'summary on their site shows the exact price.')
@@ -107,49 +121,81 @@ def status(work, brief):
     row(3, not lack, 'answered' if not lack else 'missing ' + ', '.join(lack))
 
     fm, pr = brief.get('format') or {}, brief.get('print')
-    size, pages = fm.get('size'), fm.get('pages')
-    bad = [] if pr else ['where it will be printed ("print": printer.py --choose, or {"printer": "other"})']
-    if fm.get('w') and fm.get('h'):
-        if not shape_ok(fm['w'], fm['h']):
-            bad.append('landscape pages are not offered: choose a square or portrait size')
-    elif size not in OFFERED:
-        bad.append(f'size must be one of {", ".join(OFFERED)}, or a printer\'s size from printer.py --choose')
-    if not isinstance(pages, int) or pages < 2 or pages % 2:
-        bad.append('pages must be an even number (python brief.py --options)')
-    elif fm.get('min_pages') and not fm['min_pages'] <= pages <= (fm.get('max_pages') or 10 ** 6):
-        bad.append(f'pages must be {fm["min_pages"]}-{fm.get("max_pages")} for this product')
-    if not bk.get('lang') or not bk.get('title'):
-        bad.append('the language and the title (book.lang, book.title)')
-    row(4, not bad, f'{(pr or {}).get("sku") or size}, {pages} pages' if not bad else '; '.join(bad))
+    is_lupa = (pr or {}).get('printer') == 'lupa'
+    if is_lupa:
+        bad = []
+        if not pr.get('cover_id') or not pr.get('density') or pr.get('direction') not in ('RTL', 'LTR'):
+            bad.append('cover_id, density and direction (run lupa.py --choose)')
+        target = fm.get('target_photos')
+        min_p = pr.get('photos_min') or fm.get('min_photos') or 24
+        max_p = pr.get('photos_max') or fm.get('max_photos') or 864
+        if not isinstance(target, int) or not (min_p <= target <= max_p):
+            bad.append(f'target_photos must be {min_p}-{max_p} (python brief.py --options)')
+        title = (bk.get('title') or '').strip()
+        if not bk.get('lang') or not title:
+            bad.append('the language and the title (book.lang, book.title)')
+        elif not 2 <= len(title) <= 28:
+            bad.append('book.title must be 2-28 characters for Lupa')
+        row(4, not bad, f'{pr.get("cover_id")} · {pr.get("density")} · {pr.get("direction")}, {target} photos' if not bad else '; '.join(bad))
+    else:
+        size, pages = fm.get('size'), fm.get('pages')
+        bad = [] if pr else ['where it will be printed ("print": printer.py --choose, lupa.py --choose, or {"printer": "other"})']
+        if fm.get('w') and fm.get('h'):
+            if not shape_ok(fm['w'], fm['h']):
+                bad.append('landscape pages are not offered: choose a square or portrait size')
+        elif size not in OFFERED:
+            bad.append(f'size must be one of {", ".join(OFFERED)}, or a printer\'s size from printer.py --choose')
+        if not isinstance(pages, int) or pages < 2 or pages % 2:
+            bad.append('pages must be an even number (python brief.py --options)')
+        elif fm.get('min_pages') and not fm['min_pages'] <= pages <= (fm.get('max_pages') or 10 ** 6):
+            bad.append(f'pages must be {fm["min_pages"]}-{fm.get("max_pages")} for this product')
+        if not bk.get('lang') or not bk.get('title'):
+            bad.append('the language and the title (book.lang, book.title)')
+        row(4, not bad, f'{(pr or {}).get("sku") or size}, {pages} pages' if not bad else '; '.join(bad))
 
     de = brief.get('design') or {}
-    style = de.get('style') or de.get('concept')
-    bad = []
-    if not de:
-        bad.append('not chosen')
+    if is_lupa and de.get('mode') == 'lupa':
+        row(5, True, f'Lupa theme: {de.get("theme") or "chosen after upload"}')
     else:
-        if de.get('structure', 'album') not in structures():
-            bad.append(f'structure must be one of {", ".join(structures())}')
-        elif style in style_names():
-            from looks import load_style
-            ok = load_style(style).get('structures', list(structures()))
-            if de.get('structure', 'album') not in ok:
-                bad.append(f'{style} works with {" or ".join(ok)}, not {de.get("structure")}: a magazine needs a style '
-                           'whose photos run to the edge (minimal, colourful, bold, newspaper, swiss)')
-        if style not in style_names() and not (style and os.path.isfile(os.path.join(work, style))):
-            bad.append(f'style must be one of {", ".join(style_names())}')
-        pal = de.get('palette', 'style')
-        if not (isinstance(pal, dict) or pal in ('style', 'concept', 'warm', 'cool', *palettes())):
-            bad.append(f'palette must be "style", {", ".join(palettes())}, or brand colours {{"accent": "#..."}}')
-        bad += [f'unknown element "{k}"' for k in (de.get('elements') or {}) if k not in ELEMENTS]
-        if de.get('logo') and not os.path.isfile(de['logo']):
-            bad.append(f'logo not found: {de["logo"]}')
-    row(5, not bad, f'{de.get("structure", "album")} · {style} · palette {de.get("palette", "style")}' if not bad else '; '.join(bad))
+        style = de.get('style') or de.get('concept')
+        bad = []
+        if not de:
+            bad.append('not chosen (set "design": {"mode": "lupa", "theme": null})' if is_lupa else 'not chosen')
+        else:
+            if de.get('structure', 'album') not in structures():
+                bad.append(f'structure must be one of {", ".join(structures())}')
+            elif style in style_names():
+                from looks import load_style
+                ok = load_style(style).get('structures', list(structures()))
+                if de.get('structure', 'album') not in ok:
+                    bad.append(f'{style} works with {" or ".join(ok)}, not {de.get("structure")}: a magazine needs a style '
+                               'whose photos run to the edge (minimal, colourful, bold, newspaper, swiss)')
+            if style not in style_names() and not (style and os.path.isfile(os.path.join(work, style))):
+                bad.append(f'style must be one of {", ".join(style_names())}')
+            pal = de.get('palette', 'style')
+            if not (isinstance(pal, dict) or pal in ('style', 'concept', 'warm', 'cool', *palettes())):
+                bad.append(f'palette must be "style", {", ".join(palettes())}, or brand colours {{"accent": "#..."}}')
+            bad += [f'unknown element "{k}"' for k in (de.get('elements') or {}) if k not in ELEMENTS]
+            if de.get('logo') and not os.path.isfile(de['logo']):
+                bad.append(f'logo not found: {de["logo"]}')
+        row(5, not bad, f'{de.get("structure", "album")} · {style} · palette {de.get("palette", "style")}' if not bad else '; '.join(bad))
 
     row(6, brief.get('confirmed') is True, 'yes' if brief.get('confirmed') is True else 'not yet')
 
     sel, book, pdf, chk = (os.path.join(work, f) for f in ('selection.json', 'book.json', 'book.pdf', 'check.md'))
-    if not os.path.isfile(sel):
+    man_p = os.path.join(work, 'lupa-manifest.json')
+    if is_lupa:
+        if not os.path.isfile(sel):
+            row(7, False, 'no selection.json yet')
+        elif (mtime(man_p) or 0) < mtime(sel):
+            row(7, False, 'selection changed: run lupa.py --pack')
+        else:
+            man = load(man_p)
+            cnt = len(man.get('items') or [])
+            lo, hi = pr.get('photos_min') or 24, pr.get('photos_max') or 864
+            ok = lo <= cnt <= hi
+            row(7, ok, f'{cnt} photos packed for Lupa' if ok else f'{cnt} packed photos; Lupa allows {lo}-{hi}')
+    elif not os.path.isfile(sel):
         row(7, False, 'no selection.json yet')
     elif (mtime(book) or 0) < mtime(sel):
         row(7, False, 'selection changed: run layout.py')
@@ -161,8 +207,26 @@ def status(work, brief):
         with open(chk, encoding='utf-8') as f:
             ready = 'Ready for the printer' in f.read()
         row(7, ready, 'checked, ready' if ready else 'check.md lists problems')
-    row(8, brief.get('approved') is True, 'the user approved the preview' if brief.get('approved') is True else 'waiting for the user')
-    if (pr or {}).get('printer') == 'prodigi':
+    row(8, brief.get('approved') is True,
+        ('the user approved the selection' if is_lupa else 'the user approved the preview')
+        if brief.get('approved') is True else 'waiting for the user')
+    if is_lupa:
+        lupa_link = pr.get('lupa_link')
+        uploaded_all = False
+        st_p = os.path.join(work, 'lupa-upload-state.json')
+        if os.path.isfile(man_p) and os.path.isfile(st_p):
+            man_items = load(man_p).get('items') or []
+            st_albums = load(st_p).get('albums') or {}
+            st_alb = st_albums.get(pr.get('album')) if pr.get('album') else (next(iter(st_albums.values()), {}) if len(st_albums) == 1 else {})
+            done_files = set((st_alb or {}).get('uploaded') or [])
+            uploaded_all = bool(man_items) and all(it['file'] in done_files for it in man_items)
+        if lupa_link:
+            row(9, True, f'album ready in Lupa ({lupa_link})')
+        elif uploaded_all:
+            row(9, False, 'photos uploaded to Lupa (run finish_album)')
+        else:
+            row(9, False, 'run lupa.py --pack and upload via Lupa MCP')
+    elif (pr or {}).get('printer') == 'prodigi':
         folder = os.path.join(work, 'להדפסה' if lang == 'he' else 'to-print')
         done = os.path.isdir(folder) and (mtime(pdf) or 0) <= max((mtime(os.path.join(folder, f)) or 0) for f in os.listdir(folder)) \
             if os.path.isdir(folder) and os.listdir(folder) else False

@@ -54,19 +54,28 @@ def share(total, weights, caps):
     return out
 
 
-def blocks_for_day(d, byid, limit, show_all):
+def blocks_for_day(d, byid, limit, show_all, min_side=0):
     """[(moment, items)]: what to show of each moment of a day."""
+    def eligible(it, photos_only=False):
+        if photos_only and it['kind'] != 'photo':
+            return False
+        if show_all:
+            return True
+        if set(it['flags']) & EXCLUDE:
+            return False
+        return it['kind'] != 'photo' or min(it.get('w') or 0, it.get('h') or 0) >= min_side
+
     moments = d.get('moments') or [{'id': f'{d["n"]:02d}-m1', 'ids': d['ids'], 'key': False, 'place': None,
                                     't0': byid[d['ids'][0]]['taken'], 't1': byid[d['ids'][-1]]['taken']}]
     parts = []
     for m in moments:
         its = [byid[i] for i in m['ids'] if i in byid]
-        photos = [it for it in its if it['kind'] == 'photo' and (show_all or not set(it['flags']) & EXCLUDE)]
+        photos = [it for it in its if eligible(it, photos_only=True)]
         videos = sorted((it for it in its if it['kind'] == 'video'), key=lambda v: -(v.get('duration') or 0))[:4]
         parts.append((m, its, photos, videos))
     room = max(len(moments), limit - sum(len(v) for _, _, _, v in parts))
     alloc = share(room, [math.sqrt(len(p)) * (1.6 if m.get('key') else 1) for m, _, p, _ in parts], [len(p) for _, _, p, _ in parts])
-    untimed = [byid[i] for i in d.get('untimed', []) if i in byid and (show_all or not set(byid[i]['flags']) & EXCLUDE)]
+    untimed = [byid[i] for i in d.get('untimed', []) if i in byid and eligible(byid[i])]
     if untimed and d.get('moments'):  # WhatsApp and undated photos: their time is not when they were taken
         parts.append(({'id': 'other', 'label': 'WhatsApp or undated: not placed in time', 't0': '', 't1': ''},
                       untimed, untimed, []))
@@ -78,7 +87,7 @@ def blocks_for_day(d, byid, limit, show_all):
             shown = {it['id'] for it in chosen}
             for best in sorted(chosen, key=lambda it: -it.get('score', -9))[:3]:
                 sib = [x for x in its if x.get('dup_of') == best['id'] and 'dup' in x['flags'] and x['id'] not in shown
-                       and not set(x['flags']) & (EXCLUDE - {'dup'})]
+                       and not set(x['flags']) & (EXCLUDE - {'dup'}) and min(x.get('w') or 0, x.get('h') or 0) >= min_side]
                 chosen += sorted(sib, key=lambda x: -x.get('score', -9))[:2]
         out.append((m, sorted(chosen + videos, key=lambda it: (it['taken'], it['id']))))
     return out
@@ -164,6 +173,9 @@ def main():
 
     scan = load(os.path.join(a.work, 'scan.json'))
     groups = load(os.path.join(a.work, 'groups.json'))
+    bpath = os.path.join(a.work, 'brief.json')
+    brief = load(bpath) if os.path.isfile(bpath) else {}
+    min_side = 800 if (brief.get('print') or {}).get('printer') == 'lupa' else 0
     byid = {r['id']: r for r in scan['items']}
     names = {p['id']: p['name'] for d in groups['days'] for p in d['places']}
     out = os.path.join(a.work, 'sheets')
@@ -181,7 +193,7 @@ def main():
     for d in groups['days']:
         if a.day and d['n'] not in a.day:
             continue
-        pages = paginate(blocks_for_day(d, byid, a.per_day, a.all))
+        pages = paginate(blocks_for_day(d, byid, a.per_day, a.all, min_side=min_side))
         for k, blocks in enumerate(pages, 1):
             path = os.path.join(out, f'day{d["n"]:02d}-{k}.jpg')
             sheet(blocks, path, f'Day {d["n"]} · {d["key"]} · sheet {k}/{len(pages)} · {len(d["ids"])} files, '

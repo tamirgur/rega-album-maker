@@ -1,5 +1,15 @@
 # Printing the book
 
+## Contents
+- Prodigi
+- Sizes
+- The file
+- Hebrew books and the binding side
+- Resolution and color
+- QR codes
+- Ordering
+- Lupa (MCP)
+
 Every print service has its own exact sizes, page counts and file rules. Check its "file specifications" page
 before rendering, and order **one copy first, as a proof**. The skill prepares files and guides only: it takes no
 responsibility for the print, the price, the delivery or an order, and it recommends no printer.
@@ -89,3 +99,37 @@ right take the normal `book.pdf`.
 - A print API (Prodigi and others) needs the PDF at a public download URL. A personal OneDrive or Google Drive
   link usually isn't a direct download, so the website upload is simpler for one book.
 - Before paying, confirm the product, the page count, the shipping method and the total with the user.
+
+## Lupa (MCP)
+
+Lupa (`lupa.co.il`) is listed as an option when its MCP is connected, not a recommendation; the skill takes no
+responsibility for the print, the price, the delivery or an order. Lupa does **not** accept external PDFs via MCP;
+instead, Rega curates and prepares photos locally (`scan.py`, `group.py`, `sheets.py`, `selection.json`) and uploads
+them to a draft Lupa album via the Lupa MCP `upload_api` so Lupa's server builds the book in the Lupa web editor.
+
+### Connecting Lupa MCP
+
+If the `lupa` MCP tools (`start_album`, `list_formats`, etc.) are not yet connected:
+- **Claude / native OAuth MCP clients:** connect via `https://claude.ai/directory/lupa`, or add the remote Streamable
+  HTTP server `https://mcp.lupa.co.il/mcp` with OAuth sign-in in your MCP settings.
+- **Stdio / clients where native remote OAuth is unavailable:** bridge with `mcp-remote`
+  (`npx -y mcp-remote https://mcp.lupa.co.il/mcp`; on Windows `mcp_config.json`, invoke via `"command": "cmd"`,
+  `"args": ["/c", "npx", "-y", "mcp-remote", "https://mcp.lupa.co.il/mcp"]`) and complete OAuth sign-in in the browser.
+- **Without MCP (fallback):** `lupa.py --pack` still prepares the curated `for-lupa` / `ללופה` folder locally
+  (validating `>= 800 px` and `<= 15 MB`) so the user can upload it manually on `lupa.co.il` or the Lupa app.
+
+- **Image rules (`upload_rules`):** accepted extensions `jpg, jpeg, png, webp, gif, bmp, tif/tiff, heic, heif, avif`;
+  **both sides must be at least 800 px** (smaller images are skipped by `group.py`, `sheets.py` and `lupa.py --pack`).
+- **Size & compression:** files `<= 15 MB` (`15,728,640` bytes) are copied and uploaded unchanged (without
+  `shouldCompress`/`shouldResize`, so Lupa's relay handles them as defaults). Files `> 15 MB` are converted by
+  `lupa.py --pack` to sRGB JPEG (`quality=85`, shorter side `<= 2400 px`, EXIF kept with orientation reset) and
+  uploaded with `shouldCompress=false` and `shouldResize=false`.
+- **Book bounds:** `REGULAR` `24-864` photos (`single` normal `24-144`, `single` layflat `24-51`, `multiple`/`magazine`
+  layflat `24-502`), `MINI_LUPA` `24-144`, `HAGGADAH` `24-60`. Title length for `finish_album` must be `2-28` chars.
+- **Commands:**
+  - `python <skill>/scripts/lupa.py --work "<work>" --choose --cover <cover_id> --density <density> --direction <RTL|LTR> [--book-type REGULAR] [--photos N] [--min-photos N] [--max-photos N] [--album TOKEN]`
+  - `python <skill>/scripts/lupa.py --work "<work>" --pack [--check-only]` (writes `<album>/for-lupa` or `<album>/ללופה` and `<work>/lupa-manifest.json`)
+  - `python <skill>/scripts/lupa.py --work "<work>" --sync` (reconciles `lupa-manifest.json` and `selection.json` if the user deleted photos from `for-lupa` / `ללופה`)
+  - `python <skill>/scripts/lupa.py --work "<work>" --upload --album <TOKEN> --ticket <TICKET> [--folder-name "<title>"]` (automatically syncs deletions, defaults `--folder-name` from manifest title, and resumes via `lupa-upload-state.json`; exit code `2` means ticket expired — call `get_upload_link` and re-run)
+- **Manual checkout:** Lupa MCP never places orders or handles payments. After `finish_album` and `get_album_status`,
+  give the user the Lupa web editor URL so they can review, tweak, and pay themselves.
